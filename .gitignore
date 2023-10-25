@@ -1,0 +1,30 @@
+# Visual Studio 2015/2017 cache/options directory
+.vs/
+# Visual Studio Code cache/options directory
+.vscode/
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+
+.vs/
+tempkey.rsa
+Logs/
+*.pfx
+serviceDependencies*.json*
+.idea
+*.user
+
+nuget.config # Do not commit credentials
+
+# Test Automation
+testautomation/node_modules
+testautomation/results
