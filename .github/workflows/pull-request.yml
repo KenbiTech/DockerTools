@@ -1,0 +1,68 @@
+name: Pull Request
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths-ignore:
+    - 'README.MD'
+    - 'icon.png'
+    - '.github/workflows/*'
+    - '*.Tests*'
+    - 'push*.sh'
+  workflow_dispatch:
+
+env:
+  NOTIFICATIONS_ACTIVE: ${{ secrets.NOTIFICATIONS_PR_ACTIVE || 'true' }}
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    name: Validate
+    outputs:
+      job-status: ${{ job.status }}
+      should-notify: ${{ steps.configure-conditionals.outputs.should-notify }}
+    if: github.event.pull_request.draft == false
+    env:
+      AWS_REGION_TOOLING: eu-central-1
+    steps:
+    # Based on: https://github.com/GabLeRoux/github-actions-examples/blob/e0468ce2731b08bd8b1f7cd09d0b94c541310693/.github/workflows/secret_based_conditions.yml
+    - name: Configure general
+      id: configure-conditionals
+      run: |
+        echo "should-notify=${{ env.NOTIFICATIONS_ACTIVE }}" >> $GITHUB_OUTPUT
+   
+    - name: Get code
+      uses: actions/checkout@v3  
+
+    - name: AWS Code Artifact
+      uses: KenbiTech/github-actions-code-artifact@v2
+      with:
+        aws-account: ${{ secrets.AWS_ACCOUNT_TOOLING  }}
+        aws-region: ${{ env.AWS_REGION_TOOLING }}
+        aws-access-id: ${{ secrets.AWS_ACCESS_KEY_ID_TOOLING_TEMP }}
+        aws-access-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY_TOOLING_TEMP }}
+
+    - name: Build
+      run: dotnet build --configuration Release	
+    
+    # - name: Run Tests
+      # id: tests
+      # run: |
+         # dotnet test  --configuration Release  --no-build ./DockerTools.Tests.Integration 
+                                                                                 
+  notify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: [validate, integration-tests]
+    if: always() && github.event.pull_request.draft == false && jobs.validate.outputs.should-notify == 'true' && contains(needs.*.result, 'failure')
+    steps:
+      - name: Notify failure on Slack
+        id: notify
+        uses: KenbiTech/github-actions-slack@master
+        with:
+          slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
+          slack-channel: ${{env.REPOSITORY_NAME}}-releases
+          slack-text: Please check error on Pull Request - ${{ github.server_url }}/KenbiTech/${{ env.REPOSITORY_NAME }}/actions/runs/${{ github.run_id }}
+          slack-optional-username: ${{ env.REPOSITORY_NAME }}
+          slack-optional-icon_emoji: ":${{ env.REPOSITORY_NAME }}:"
