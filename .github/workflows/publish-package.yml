@@ -22,7 +22,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
           aws-access-id: ${{ secrets.AWS_ACCESS_KEY_ID_TOOLING_TEMP }}
           aws-access-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY_TOOLING_TEMP }}
-      - name: Conventional Changelog Action
+      - name: Versionize
         run: |
           dotnet tool install --global Versionize --version 1.19.1
           # clean changes that shouldn't be committed with version bump
@@ -32,7 +32,7 @@ jobs:
           versionize --ignore-insignificant-commits --commit-suffix "[skip ci]" --proj-version-bump-logic
           git push --follow-tags origin main
           
-  publish-tools:
+  publish:
     uses: KenbiTech/github-actions-reusable/.github/workflows/publish-package.yml@main
     needs: [ generate-release ]
     with:
