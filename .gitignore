@@ -23,8 +23,6 @@ serviceDependencies*.json*
 .idea
 *.user
 
-nuget.config # Do not commit credentials
-
 # Test Automation
 testautomation/node_modules
 testautomation/results
