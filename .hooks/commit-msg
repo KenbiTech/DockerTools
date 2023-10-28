@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# This hook verifies that the commit message follows conventional commit rules
+
+# Regex to validate a string starts with feat, fix, chore or BREAKING CHANGE with or without a related jira ticket
+regex="^(feat|fix|chore|BREAKING CHANGE)(:|\([A-Z]*-[0-9]*\):)"
+file=`cat $1` # The file that contains the commit message
+
+# If the commit message does not match the regex
+if ! [[ $file =~ $regex ]]; then
+  echo "Commit message must comply to conventional commit rules."
+  echo "Start the message with feat:, fix:, chore: or BREAKING CHANGE:."
+  echo "You can also add a Jira ticket id (i.e. feat(PROJECT-1):)."
+  exit 1
+fi
+
+exit 0

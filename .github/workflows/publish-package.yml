@@ -4,42 +4,15 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
-env:
-  AWS_REGION: eu-central-1
 jobs:
-  generate-release:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: AWS Code Artifact
-        id: code-artifact
-        uses: KenbiTech/github-actions-code-artifact@v2
-        with:
-          aws-account: ${{ secrets.AWS_ACCOUNT_TOOLING }}
-          aws-region: ${{ env.AWS_REGION }}
-          aws-access-id: ${{ secrets.AWS_ACCESS_KEY_ID_TOOLING_TEMP }}
-          aws-access-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY_TOOLING_TEMP }}
-      - name: Conventional Changelog Action
-        run: |
-          dotnet tool install --global Versionize --version 1.19.1
-          # clean changes that shouldn't be committed with version bump
-          git reset --hard
-          git config --global user.email "versionize@kenbi.de"
-          git config --global user.name "Versionize"
-          versionize --ignore-insignificant-commits --commit-suffix "[skip ci]" --proj-version-bump-logic
-          git push --follow-tags origin main
-          
-  publish-tools:
+  publish:
     uses: KenbiTech/github-actions-reusable/.github/workflows/publish-package.yml@main
-    needs: [ generate-release ]
     with:
       use-notifications: ${{ vars.NOTIFICATIONS_RELEASE_ACTIVE }}
       package-name: DockerTools
       script-filename: publish
       project-name: DockerTools
       use-sonarqube: false
+      autoversion-project-folder: './DockerTools'
     secrets: inherit
       
