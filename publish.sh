@@ -13,7 +13,6 @@ server=https://kenbi-artifacts-567677647219.d.codeartifact.eu-central-1.amazonaw
 # Hardcoded per project
 relpath=
 project=DockerTools
-tagprefix=
 
 echo '---------------------------------'
 echo 'Packing '
@@ -34,6 +33,14 @@ dotnet nuget push \
     --skip-duplicate
 
 version=${package/.nupkg/}
-version=${version/$relpath$project\/bin\/Release\/Kenbi.$project./$tagprefix-}
+version=${version/$relpath$project\/bin\/Release\/Kenbi.$project./}
 
 echo "Version: $version"
+
+echo '---------------------------------'
+echo 'Creating git tag'
+echo '---------------------------------'
+# Creates a git tag if not exists already
+if [ -z "$(git tag --list $version)" ]; then
+   git tag "$version" && git push origin "$version";
+fi
