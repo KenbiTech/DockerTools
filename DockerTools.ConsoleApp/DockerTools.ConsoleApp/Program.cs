@@ -26,7 +26,14 @@ client
     .Setup<PostgresContainer>()
     .Build();
 
-await client.CreateAsync();
+try
+{
+    await client.CreateAsync();
+}
+catch (Exception ex)
+{
+    Console.Error.WriteLine($"Error when creating containers: {ex.Message}");
+}
 await client.StartAsync();
 await client.StopAndRemoveAsync();
 
