@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.2.0"></a>
+## [1.2.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.2.0) (2023-11-08)
+
+### Features
+
+* Allow auto detection of Docker Remote API ([8918a67](https://www.github.com/KenbiTech/DockerTools/commit/8918a67751ab265273e142594775f10d8afd4794))
+
 <a name="1.1.0"></a>
 ## [1.1.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.1.0) (2023-11-08)
 
