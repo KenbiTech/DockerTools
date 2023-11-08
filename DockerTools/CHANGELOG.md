@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.1.0"></a>
+## [1.1.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.1.0) (2023-11-08)
+
+### Features
+
+* Allow UsingEnvironmentDetection to detect HTTP API availability ([c6224f6](https://www.github.com/KenbiTech/DockerTools/commit/c6224f69248a4cc2d595122c3c36e37dc319814d))
+
 <a name="1.0.0"></a>
 ## [1.0.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.0.0) (2023-10-28)
 
