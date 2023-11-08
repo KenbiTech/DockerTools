@@ -1,4 +1,6 @@
-﻿namespace Kenbi.DockerTools.Initialization;
+﻿using Kenbi.DockerTools.Extensions;
+
+namespace Kenbi.DockerTools.Initialization;
 
 /// <summary>
 /// 
@@ -22,6 +24,11 @@ public class DockerToolsClientConfigurationInitializer
     /// <returns>A new DockerToolsClient instance.</returns>
     public DockerToolsClient Create()
     {
-        return this._uri == null ? new DockerToolsClient() : new DockerToolsClient(this._uri);
+        if (this._uri != null)
+        {
+            return new DockerToolsClient(this._uri);
+        }
+        
+        return DockerToolsClientInitializationExtensions.TryGetUriByEnvironment(out var uri) ? new DockerToolsClient(uri) : new DockerToolsClient();
     }
 }

@@ -11,11 +11,11 @@ Install the package, then
 
 ```csharp
 var client = new DockerToolsClientConfiguration()
-    .UsingUri(new Uri("http://localhost:2375"))
+    .UsingEnvironmentDetection()
     .Create();
 ```
 
-This will initialize a new client, connected to the WSL2 Docker Remote API. Connection via Windows Pipe, Unix socket, or using auto detection is also supported.
+This will initialize a new client, automatically detecting the connection to the Docker client. If necessary, you can specify the type of connection you want to use: via Uri, Windows Pipes, or Unix socket.
 
 To configure a new Postgres container, simply do
 
@@ -29,7 +29,7 @@ If you need to tweak some parameters, you can call the optional `WithParameters`
 
 ```csharp
 client
-    .Setup<PostgresContainer>()
+    .Setup<PostgresContainer, PostgresContainerParameters>()
     .WithParameters(() => new PostgresContainerParameters()
         .WithDefaultDatabase("MyDatabase")
         .WithUsername("MyUsername")
