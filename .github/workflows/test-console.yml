@@ -1,0 +1,36 @@
+name: Test Console app
+on: 
+  workflow_dispatch:
+
+env:
+  AWS_REGION: eu-central-1
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check Docker
+        run: |
+          docker ps
+      
+      - uses: actions/checkout@v4
+      
+      - name: AWS Code Artifact
+        uses: KenbiTech/github-actions-code-artifact@v2
+        with:
+          aws-account: ${{ secrets.AWS_ACCOUNT_TOOLING  }}
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-id: ${{ secrets.AWS_ACCESS_KEY_ID_TOOLING_TEMP }}
+          aws-access-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY_TOOLING_TEMP }}
+      
+      - name: Build
+        run: |
+          dotnet restore
+          dotnet build --configuration Release
+      - name: Run console
+        run: |
+          cd DockerTools.ConsoleApp/DockerTools.ConsoleApp && dotnet run --no-build
+      
