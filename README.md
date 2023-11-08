@@ -15,7 +15,7 @@ var client = new DockerToolsClientConfiguration()
     .Create();
 ```
 
-This will initialize a new client, automatically detecting the connection to the Docker client. If necessary, you can specify the type of connection you want to use: via Uri, Windows Pipes, or Unix socket.
+This will initialize a new client, automatically detecting the connection to the Docker client. If necessary, you can specify the type of connection you want to use: via uri (for Docker Remote API), Windows Pipes, or Unix socket.
 
 To configure a new Postgres container, simply do
 
