@@ -33,6 +33,6 @@ jobs:
       - name: Run console
         run: |
           cd DockerTools.ConsoleApp/DockerTools.ConsoleApp
-          ls -l /bin/Release/net6.0
+          ls -l ./bin/Release/net6.0
           dotnet run --no-build --configuration Release
       
