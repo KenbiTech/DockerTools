@@ -19,7 +19,8 @@ client
 client
     .Setup<PostgisContainer, PostgisContainerParameters>()
     .WithParameters(() => new PostgisContainerParameters()
-        .WithDefaultDatabase("MatchMaking"))
+        .WithDefaultDatabase("MatchMaking")
+        .WithVersion("latest"))
     .Build();
 
 client

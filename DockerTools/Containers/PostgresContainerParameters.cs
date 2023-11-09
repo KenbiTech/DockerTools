@@ -7,9 +7,10 @@ namespace Kenbi.DockerTools.Containers;
 /// </summary>
 public class PostgresContainerParameters : IContainerParameters
 {
-    internal string Username = "postgres";
-    internal string Password = "postgres";
-    internal string Database = "postgres";
+    internal string Username;
+    internal string Password;
+    internal string Database;
+    internal string Version;
     
     /// <summary>
     /// Allows for configuration of a default user.
@@ -69,6 +70,26 @@ public class PostgresContainerParameters : IContainerParameters
         }
         
         this.Database = database;
+        
+        return this;
+    }
+    
+    /// <summary>
+    /// Allows for configuration of a specific version of the container.
+    /// </summary>
+    /// <param name="version">The version to set.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentNullException">If an empty or null value is supplied.</exception>
+    public PostgresContainerParameters WithVersion(string version)
+    {
+        if (string.IsNullOrWhiteSpace(version))
+        {
+            throw new ArgumentNullException(
+                nameof(version),
+                "Version cannot be empty. If you wish to use the default value, do not invoke this method.");
+        }
+        
+        this.Version = version;
         
         return this;
     }
