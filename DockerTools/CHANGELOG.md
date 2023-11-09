@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.3.0"></a>
+## [1.3.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.3.0) (2023-11-09)
+
+### Features
+
+* Allow for manual setup of the container version for postgres and postgis containers ([11fadc6](https://www.github.com/KenbiTech/DockerTools/commit/11fadc6e8050a19d4401d7903ec7e3935ca3e70f))
+
 <a name="1.2.0"></a>
 ## [1.2.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.2.0) (2023-11-08)
 
