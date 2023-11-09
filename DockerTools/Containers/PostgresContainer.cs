@@ -10,7 +10,7 @@ public class PostgresContainer : IDatabaseContainer
     public string Image => "postgres";
 
     /// <inheritdoc />
-    public string Tag => "14.3";
+    public string Tag { get; private set; } = "14.3";
 
     /// <inheritdoc />
     public IEnumerable<PortConfiguration> Ports => new List<PortConfiguration>
@@ -56,6 +56,11 @@ public class PostgresContainer : IDatabaseContainer
         if (!string.IsNullOrWhiteSpace(mappedParameters.Database))
         {
             this.Database = mappedParameters.Database;
+        }
+        
+        if (!string.IsNullOrWhiteSpace(mappedParameters.Version))
+        {
+            this.Tag = mappedParameters.Version;
         }
     }
 
