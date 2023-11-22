@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+﻿using Kenbi.DockerTools.Exceptions;
 
 namespace Kenbi.DockerTools.Extensions;
 
@@ -33,6 +33,39 @@ internal static class DockerToolsClientInitializationExtensions
         }
         
         uri = null;
+        return false;
+    }
+
+    /// <summary>
+    /// Attempts to connect to the Docker instance uri supplied.
+    /// </summary>
+    /// <param name="uri">Path to validate.</param>
+    /// <returns></returns>
+    /// <exception cref="DockerUnreachableException"></exception>
+    internal static bool TryConnectToInstance(string uri)
+    {
+        HttpClient client = null;
+
+        try
+        {
+            client = new HttpClient();
+
+            var response = client.GetAsync($"{uri}/version").GetAwaiter().GetResult();
+
+            if (response.IsSuccessStatusCode)
+            {
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new DockerUnreachableException(ex);
+        }
+        finally
+        {
+            client?.Dispose();
+        }
+
         return false;
     }
 }

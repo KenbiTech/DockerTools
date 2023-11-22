@@ -22,13 +22,26 @@ public class DockerToolsClientConfigurationInitializer
     /// Creates the requested instance.
     /// </summary>
     /// <returns>A new DockerToolsClient instance.</returns>
+    /// <exception cref="DockerTools.Exceptions.DockerUnreachableException">Thrown if connection to Docker instance cannot be made (e.g., Docker is not running on host).</exception>
     public DockerToolsClient Create()
     {
+        DockerToolsClient client = null;
+
         if (this._uri != null)
         {
-            return new DockerToolsClient(this._uri);
+            client = new DockerToolsClient(this._uri);
         }
-        
-        return DockerToolsClientInitializationExtensions.TryGetUriByEnvironment(out var uri) ? new DockerToolsClient(uri) : new DockerToolsClient();
+        else if (DockerToolsClientInitializationExtensions.TryGetUriByEnvironment(out var uri))
+        {
+            client = new DockerToolsClient(uri);
+        }
+        else
+        {
+            client = new DockerToolsClient();
+        }
+
+        DockerToolsClientInitializationExtensions.TryConnectToInstance(client.Client.Configuration.EndpointBaseUri.ToString());
+
+        return client;
     }
 }
