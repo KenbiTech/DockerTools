@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.4.0"></a>
+## [1.4.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.0) (2023-11-23)
+
+### Features
+
+* Add connection test to client initialization ([d1b674a](https://www.github.com/KenbiTech/DockerTools/commit/d1b674a917a3c5c336d50d30c15af2c1ea9d9400))
+
 <a name="1.3.0"></a>
 ## [1.3.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.3.0) (2023-11-09)
 

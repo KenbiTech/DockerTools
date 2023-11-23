@@ -9,7 +9,7 @@
         <IsPackable>true</IsPackable>
         <Company>Kenbi</Company>
         <Product>Kenbi.DockerTools</Product>
-        <Version>1.3.0</Version>
+        <Version>1.4.0</Version>
         <RepositoryUrl>https://github.com/KenbiTech/DockerTools</RepositoryUrl>
         <RepositoryType>Library</RepositoryType>
     </PropertyGroup>
