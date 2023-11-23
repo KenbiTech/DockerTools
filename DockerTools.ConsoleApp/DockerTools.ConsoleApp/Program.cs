@@ -6,38 +6,48 @@ using Kenbi.DockerTools.Initialization;
 
 Console.WriteLine("Hello, World!");
 
-var client = new DockerToolsClientConfiguration()
-    .UsingUri(new Uri("http://localhost:2375"))
-    .Create();
-
-client
-    .Setup<PostgresContainer, PostgresContainerParameters>()
-    .WithParameters(() => new PostgresContainerParameters()
-        .WithDefaultDatabase("Recruitments"))
-    .Build();
-
-client
-    .Setup<PostgisContainer, PostgisContainerParameters>()
-    .WithParameters(() => new PostgisContainerParameters()
-        .WithDefaultDatabase("MatchMaking")
-        .WithVersion("latest"))
-    .Build();
-
-client
-    .Setup<PostgresContainer>()
-    .Build();
-
 try
 {
-    await client.CreateAsync();
+    var client = new DockerToolsClientConfiguration()
+        //.UsingUri(new Uri("http://localhost:2375"))
+        .UsingEnvironmentDetection()
+        .Create();
+
+    client
+        .Setup<PostgresContainer, PostgresContainerParameters>()
+        .WithParameters(() => new PostgresContainerParameters()
+            .WithDefaultDatabase("Recruitments"))
+        .Build();
+
+    client
+        .Setup<PostgisContainer, PostgisContainerParameters>()
+        .WithParameters(() => new PostgisContainerParameters()
+            .WithDefaultDatabase("MatchMaking")
+            .WithVersion("latest"))
+        .Build();
+
+    client
+        .Setup<PostgresContainer>()
+        .Build();
+
+    try
+    {
+        await client.CreateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.Error.WriteLine($"Error when creating containers: {ex.Message}");
+    }
+
+    await client.StartAsync();
+    await client.StopAndRemoveAsync();
+
+    await client.DisposeAsync();
 }
 catch (Exception ex)
 {
-    Console.Error.WriteLine($"Error when creating containers: {ex.Message}");
+    Console.WriteLine($"{ex.Message}: {ex.InnerException.Message}");
 }
-await client.StartAsync();
-await client.StopAndRemoveAsync();
 
-await client.DisposeAsync();
-
+Console.WriteLine("Press Enter to complete run...");
 Console.ReadLine();
