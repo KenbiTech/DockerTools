@@ -46,7 +46,7 @@ try
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"{ex.Message}: {ex.InnerException.Message}");
+    Console.WriteLine($"{ex.Message}: {ex.InnerException!.Message}");
 }
 
 Console.WriteLine("Press Enter to complete run...");
