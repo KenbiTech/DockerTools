@@ -6,4 +6,8 @@ public class DockerUnreachableException : Exception
         : base("An error has occurred while attempting to connect to the Docker instance. See the inner exception for details.", inner)
     {
     }
+
+    public DockerUnreachableException(string message) : base(message)
+    {
+    }
 }
