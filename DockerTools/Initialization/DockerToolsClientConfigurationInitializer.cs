@@ -40,7 +40,7 @@ public class DockerToolsClientConfigurationInitializer
             client = new DockerToolsClient();
         }
 
-        DockerToolsClientInitializationExtensions.TryConnectToInstance(client.Client.Configuration.EndpointBaseUri.ToString());
+        DockerToolsClientInitializationExtensions.TryConnectToInstance(client);
 
         return client;
     }

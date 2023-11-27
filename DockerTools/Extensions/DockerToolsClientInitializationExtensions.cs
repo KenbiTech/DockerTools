@@ -42,30 +42,17 @@ internal static class DockerToolsClientInitializationExtensions
     /// <param name="uri">Path to validate.</param>
     /// <returns></returns>
     /// <exception cref="DockerUnreachableException"></exception>
-    internal static bool TryConnectToInstance(string uri)
+    internal static bool TryConnectToInstance(DockerToolsClient client)
     {
-        HttpClient client = null;
-
         try
         {
-            client = new HttpClient();
+            client.Client.System.GetVersionAsync().GetAwaiter().GetResult();
 
-            var response = client.GetAsync($"{uri}/version").GetAwaiter().GetResult();
-
-            if (response.IsSuccessStatusCode)
-            {
-                return true;
-            }
+            return true;
         }
         catch (Exception ex)
         {
             throw new DockerUnreachableException(ex);
         }
-        finally
-        {
-            client?.Dispose();
-        }
-
-        return false;
     }
 }
