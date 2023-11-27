@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.4.2"></a>
+## [1.4.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.2) (2023-11-27)
+
+### Bug Fixes
+
+* Add timeout to client ping on creation ([98182f5](https://www.github.com/KenbiTech/DockerTools/commit/98182f53545b06014e954841b2cdca0efde5771d))
+
 <a name="1.4.1"></a>
 ## [1.4.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.1) (2023-11-27)
 
