@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.4.1"></a>
+## [1.4.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.1) (2023-11-27)
+
+### Bug Fixes
+
+* Correct connection verification for Unix environments ([edcd74e](https://www.github.com/KenbiTech/DockerTools/commit/edcd74e714dbd52f9206b84378dd126f707f368d))
+
 <a name="1.4.0"></a>
 ## [1.4.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.0) (2023-11-23)
 
