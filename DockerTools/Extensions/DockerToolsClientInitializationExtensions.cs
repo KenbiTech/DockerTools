@@ -43,9 +43,7 @@ internal static class DockerToolsClientInitializationExtensions
         {
             var task = client.Client.System.PingAsync();
 
-            task.Wait(Timeout);
-            
-            if (!task.IsCompleted)
+            if (!task.Wait(Timeout))
             {
                 throw new DockerUnreachableException("The operation has timed out: unable to reach Docker instance within the allotted time.");
             }

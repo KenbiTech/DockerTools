@@ -8,5 +8,5 @@ public class ContainerMonitorAdditionalInformation
     /// <summary>
     /// Connection string. Applicable to database containers.
     /// </summary>
-    public string ConnectionString { get; internal set; }
+    public string? ConnectionString { get; internal set; }
 }

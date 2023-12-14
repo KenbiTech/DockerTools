@@ -49,4 +49,16 @@ public class GenericContainer : IContainer
     {
         return this.EnvironmentVariables;
     }
+    
+    public Task PerformPostStartOperationsAsync(DockerToolsClient client, string id, CancellationToken token = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
+    {
+        var commands = RunCommandUtils.SetupCommand(command);
+
+        return RunCommandUtils.InternalExecuteCommandAsync(client, id, commands, token);
+    }
 }

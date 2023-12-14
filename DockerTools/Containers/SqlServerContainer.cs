@@ -30,10 +30,16 @@ public class SqlServerContainer : IDatabaseContainer
             "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null"
         }
     };
-
+    
+    private string Username { get; set; } = "sa";
+    private string Password { get; set; } = "ABc123$%";
+    private string Database { get; set; } = "DockerTools";
+    public string ScriptExecutionBaseCommand => $"/opt/mssql-tools/bin/sqlcmd -U {this.Username} -P {this.Password} -d {this.Database} -Q";
     private IList<string> EnvironmentVariables => new List<string>
     {
-        "ACCEPT_EULA=true"
+        "ACCEPT_EULA=true",
+        $"MSSQL_SA_PASSWORD={this.Password}"
+        
     };
 
     /// <inheritdoc />
@@ -47,10 +53,24 @@ public class SqlServerContainer : IDatabaseContainer
     {
         return this.EnvironmentVariables;
     }
+    
+    public Task PerformPostStartOperationsAsync(DockerToolsClient client, string id, CancellationToken token = default)
+    {
+        var command = $"/opt/mssql-tools/bin/sqlcmd -U {this.Username} -P {this.Password} -Q";
+        var script = $"CREATE DATABASE {this.Database};";
+
+        var commands = RunCommandUtils.SetupCommand(command, script);
+
+        return RunCommandUtils.InternalExecuteCommandAsync(client, id, commands, token);
+    }
+
+    public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
+    {
+        var commands = RunCommandUtils.SetupCommand(this.ScriptExecutionBaseCommand, command);
+
+        return RunCommandUtils.InternalExecuteCommandAsync(client, id, commands, token);
+    }
 
     /// <inheritdoc />
-    public string CreateConnectionString(string hostPort)
-    {
-        return string.Empty;
-    }
+    public string CreateConnectionString(string hostPort) => $"Server=localhost,{hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};";
 }
