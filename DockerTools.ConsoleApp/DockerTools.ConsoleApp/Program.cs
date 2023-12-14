@@ -9,7 +9,6 @@ Console.WriteLine("Hello, World!");
 try
 {
     var client = new DockerToolsClientConfiguration()
-        //.UsingUri(new Uri("http://localhost:2375"))
         .UsingEnvironmentDetection()
         .Create();
 
@@ -17,17 +16,6 @@ try
         .Setup<PostgresContainer, PostgresContainerParameters>()
         .WithParameters(() => new PostgresContainerParameters()
             .WithDefaultDatabase("Recruitments"))
-        .Build();
-
-    client
-        .Setup<PostgisContainer, PostgisContainerParameters>()
-        .WithParameters(() => new PostgisContainerParameters()
-            .WithDefaultDatabase("MatchMaking")
-            .WithVersion("latest"))
-        .Build();
-
-    client
-        .Setup<PostgresContainer>()
         .Build();
 
     try
@@ -40,6 +28,7 @@ try
     }
 
     await client.StartAsync();
+    
     await client.StopAndRemoveAsync();
 
     await client.DisposeAsync();

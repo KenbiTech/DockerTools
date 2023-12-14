@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>disable</Nullable>
+        <Nullable>enable</Nullable>
         <AssemblyName>Kenbi.DockerTools</AssemblyName>
         <RootNamespace>Kenbi.DockerTools</RootNamespace>
         <IsPackable>true</IsPackable>
@@ -19,7 +19,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Docker.DotNet" Version="3.125.12" />
+      <PackageReference Include="Docker.DotNet" Version="3.125.15" />
     </ItemGroup>
 
 </Project>

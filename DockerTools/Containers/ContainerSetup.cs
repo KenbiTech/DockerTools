@@ -46,7 +46,7 @@ public class ContainerSetup<T> : IContainerSetup<T> where T : class, IContainer
         };
 
         this._client.TryAddConfiguration(
-            new ContainerMonitor(this.Container.Image, configuration, this.Container),
+            new ContainerMonitor(this.Container.Image, configuration, this.Container, this._client),
             out _);
     }
 }
@@ -104,7 +104,7 @@ public class ContainerSetup<T, TParameters> : IContainerSetup<T, TParameters> wh
         };
 
         this._client.TryAddConfiguration(
-            new ContainerMonitor(this.Container.Image, configuration, this.Container),
+            new ContainerMonitor(this.Container.Image, configuration, this.Container, this._client),
             out _);
     }
 }
