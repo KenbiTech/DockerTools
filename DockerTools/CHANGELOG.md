@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.0"></a>
+## [1.5.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.0) (2023-12-15)
+
+### Features
+
+* Add support for running commands on a container ([7bd2c6f](https://www.github.com/KenbiTech/DockerTools/commit/7bd2c6fbb9456e51a5bda062c1738540e071520f))
+
 <a name="1.4.2"></a>
 ## [1.4.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.4.2) (2023-11-27)
 
