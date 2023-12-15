@@ -32,7 +32,7 @@ public static class DockerToolsClientExtensions
             try
             {
                 await PullImageAsync(dc, container.Configuration.Image, token);
-                
+
                 var response = await dc.Client.Containers.CreateContainerAsync(container.Configuration, token);
 
                 container.AddId(response.ID, true);
@@ -85,7 +85,6 @@ public static class DockerToolsClientExtensions
                 {
                     report = new StartupReport(
                         container.Configuration.Name,
-                        null,
                         new ContainerWasNotCreatedException("Container could not be started because it was not created successfully."));
                     reports.Add(report);
                     continue;
@@ -95,12 +94,13 @@ public static class DockerToolsClientExtensions
 
                 if (response)
                 {
-                    var result = await TryGetContainerStatusAsync(dc, container.Id, token);
+                    var (result, ports) = await TryGetContainerStatusAsync(dc, container.Id, token);
 
-                    if (result.Item1)
+                    if (result)
                     {
-                        container.ReplacePortBindings(result.Item2);
+                        container.ReplacePortBindings(ports);
                         container.AddAdditionalInformation();
+                        await container.PerformPostStartOperationsAsync(token);
                         report = new StartupReport(container.Configuration.Name, container.Id, OperationStatus.Success);
                     }
                     else
@@ -141,8 +141,8 @@ public static class DockerToolsClientExtensions
 
             if (!container.CreatedByDockerTools)
             {
-                report = new StopAndRemoveReport(container.Configuration.Name,
-                    null,
+                report = new StopAndRemoveReport(
+                    container.Configuration.Name,
                     new ContainerWasNotStoppedException("Container was not stopped because it is not managed by Docker Tools."));
                 result.Add(report);
                 continue;
@@ -190,30 +190,32 @@ public static class DockerToolsClientExtensions
             token);
     }
 
-    private static async Task<Tuple<bool, IEnumerable<PortConfiguration>>> TryGetContainerStatusAsync(DockerToolsClient dc, string id, CancellationToken token)
+    private static async Task<(bool, IEnumerable<PortConfiguration>)> TryGetContainerStatusAsync(DockerToolsClient dc, string id, CancellationToken token)
     {
-        ContainerInspectResponse response = null;
+        var healthy = false;
+        ContainerInspectResponse? response = null;
 
         for (var i = 0; i < HealthCheckAttempts; i++)
         {
             response = await dc.Client.Containers.InspectContainerAsync(id, token);
 
-            if (response.State.Health == null || response.State.Health?.Status == HealthCheckHealthy)
+            if (response.State.Health == null || response.State.Health.Status == HealthCheckHealthy)
             {
+                healthy = true;
                 break;
             }
 
             Thread.Sleep(new TimeSpan(0, 0, seconds: 2));
         }
 
-        if (response == null)
+        if (!healthy)
         {
-            return new Tuple<bool, IEnumerable<PortConfiguration>>(false, Array.Empty<PortConfiguration>());
+            return (false, Array.Empty<PortConfiguration>());
         }
 
-        var portConfiguration = response.NetworkSettings.Ports.ConvertToPortConfiguration();
+        var portConfiguration = response!.NetworkSettings.Ports.ConvertToPortConfiguration();
 
-        return new Tuple<bool, IEnumerable<PortConfiguration>>(true, portConfiguration);
+        return (true, portConfiguration);
     }
 
     private static async Task<StopAndRemoveReport> StopAsync(DockerToolsClient dc, IContainerMonitor container, CancellationToken token)
@@ -225,17 +227,14 @@ public static class DockerToolsClientExtensions
                 new ContainerStopParameters(),
                 token);
 
-            if (!response)
-            {
-                return new StopAndRemoveReport(container.Configuration.Name, container.Id, OperationStatus.Error);
-            }
+            return !response ?
+                new StopAndRemoveReport(container.Configuration.Name, container.Id, OperationStatus.Error) :
+                new StopAndRemoveReport(container.Configuration.Name, container.Id, OperationStatus.Success);
         }
         catch (Exception ex)
         {
             return new StopAndRemoveReport(container.Configuration.Name, container.Id, ex);
         }
-
-        return null;
     }
 
     private static async Task<StopAndRemoveReport> RemoveAsync(DockerToolsClient dc, IContainerMonitor container, CancellationToken token)
@@ -255,6 +254,6 @@ public static class DockerToolsClientExtensions
             return new StopAndRemoveReport(container.Configuration.Name, container.Id, ex);
         }
 
-        return null;
+        return new StopAndRemoveReport(container.Configuration.Name, container.Id, OperationStatus.Success);
     }
 }

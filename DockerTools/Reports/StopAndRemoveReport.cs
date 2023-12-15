@@ -13,12 +13,12 @@ public class StopAndRemoveReport
     /// <summary>
     /// ID of the container. Assigned by Docker upon creation.
     /// </summary>
-    public string Id { get; }
+    public string? Id { get; }
 
     /// <summary>
     /// Inner exception returned by the stop/removal process. Null if successful.
     /// </summary>
-    public Exception Exception { get; }
+    public Exception? Exception { get; }
     
     /// <summary>
     /// Status of the operation.
@@ -36,6 +36,14 @@ public class StopAndRemoveReport
     {
         this.Name = name;
         this.Id = id;
+        this.Exception = ex;
+        
+        this.Status = OperationStatus.Error;
+    }
+    
+    internal StopAndRemoveReport(string name, Exception ex)
+    {
+        this.Name = name;
         this.Exception = ex;
         
         this.Status = OperationStatus.Error;

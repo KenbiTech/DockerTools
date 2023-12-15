@@ -37,6 +37,7 @@ public class PostgresContainer : IDatabaseContainer
     private string Username { get; set; } = "postgres";
     private string Password { get; set; } = "postgres";
     private string Database { get; set; } = "postgres";
+    public string ScriptExecutionBaseCommand => $"psql -U {this.Username} -d {this.Database} -c";
 
     /// <inheritdoc />
     public void UpsertParameters(IContainerParameters parameters)
@@ -57,7 +58,7 @@ public class PostgresContainer : IDatabaseContainer
         {
             this.Database = mappedParameters.Database;
         }
-        
+
         if (!string.IsNullOrWhiteSpace(mappedParameters.Version))
         {
             this.Tag = mappedParameters.Version;
@@ -74,10 +75,23 @@ public class PostgresContainer : IDatabaseContainer
             $"POSTGRES_PASSWORD={this.Password}"
         };
     }
+    
+    public Task PerformPostStartOperationsAsync(DockerToolsClient client, string id, CancellationToken token = default)
+    {
+        return Task.CompletedTask;
+    }
+
+    public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
+    {
+        var commands = RunCommandUtils.SetupCommand(this.ScriptExecutionBaseCommand, command);
+        var variables = new List<string>
+        {
+            $"PGPASSWORD={this.Password}"
+        };
+
+        return RunCommandUtils.InternalExecuteCommandAsync(client, id, commands, variables, token);
+    }
 
     /// <inheritdoc />
-    public string CreateConnectionString(string hostPort)
-    {
-        return $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};";
-    }
+    public string CreateConnectionString(string hostPort) => $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};";
 }
