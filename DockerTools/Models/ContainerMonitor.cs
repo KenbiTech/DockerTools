@@ -1,4 +1,5 @@
-﻿using Docker.DotNet.Models;
+﻿using Docker.DotNet;
+using Docker.DotNet.Models;
 using Kenbi.DockerTools.Containers.Interfaces;
 using Kenbi.DockerTools.Models.Interfaces;
 using Kenbi.DockerTools.Utils;
@@ -29,12 +30,15 @@ public class ContainerMonitor : IContainerMonitor
     /// <inheritdoc />
     public IContainer Container { get; private set; }
 
-    internal ContainerMonitor(string name, CreateContainerParameters configuration, IContainer container)
+    public DockerToolsClient Client { get; }
+
+    internal ContainerMonitor(string name, CreateContainerParameters configuration, IContainer container, DockerToolsClient client)
     {
         this.Name = name;
         this.Configuration = configuration;
         this.PortBindings = configuration.HostConfig.PortBindings.ConvertToPortConfiguration().ToList();
         this.Container = container;
+        this.Client = client;
     }
 
     void IContainerMonitor.AddId(string id, bool newContainer)
@@ -55,11 +59,11 @@ public class ContainerMonitor : IContainerMonitor
 
     void IContainerMonitor.AddAdditionalInformation()
     {
-        string connectionString = null;
+        string? connectionString = null;
 
         if (this.Container is IDatabaseContainer container)
         {
-            connectionString = container.CreateConnectionString(this.PortBindings.First().Host);
+            connectionString = container.CreateConnectionString(this.PortBindings[0].Host);
         }
 
         this.AdditionalInformation = new ContainerMonitorAdditionalInformation

@@ -47,9 +47,22 @@ public interface IContainerMonitor
     /// </summary>
     public IContainer Container { get; }
 
+    internal DockerToolsClient Client { get; }
+    
+    /// <summary>
+    /// Executes a command inside the container.
+    /// If container is <see cref="IDatabaseContainer"/>, command is run as a database script.
+    /// </summary>
+    /// <param name="command">The command to execute inside the container.</param>
+    /// <param name="token">A cancellation token. Optional.</param>
+    /// <returns></returns>
+    public Task ExecuteCommandAsync(string command, CancellationToken token = default) => this.Container.ExecuteCommandAsync(this.Client, this.Id, command, token);
+
     internal void AddId(string id, bool newContainer);
 
     internal void ReplacePortBindings(IEnumerable<PortConfiguration> portConfigurations);
 
     internal void AddAdditionalInformation();
+
+    internal Task PerformPostStartOperationsAsync(CancellationToken token) => this.Container.PerformPostStartOperationsAsync(this.Client, this.Id, token);
 }
