@@ -2,12 +2,12 @@
 
 DockerTools is a simple wrapper on top of [Docker.DotNet](https://github.com/dotnet/Docker.DotNet).
 
-Seen as how it's meant for internal Kenbi use, it's been preconfigured with Postgres support, in order to be used with integration and database testing.
-However, it offers basic support to initialize any other container (currently, only bridge mode is supported).
+DockerTools was created as a means of abstracting the complexity of managing database containers when running automated tests. It provides a simple, fluent approach to creating, interacting, and disposing of containers.
 
 ## How to use
+### Initializing a new connection
 
-Install the package, then
+Install the package, then initialize a new client instance with
 
 ```csharp
 var client = new DockerToolsClientConfiguration()
@@ -15,9 +15,30 @@ var client = new DockerToolsClientConfiguration()
     .Create();
 ```
 
-This will initialize a new client, automatically detecting the connection to the Docker client. If necessary, you can specify the type of connection you want to use: via uri (for Docker Remote API), Windows Pipes, or Unix socket.
+If necessary, you can specify the type of connection you want to use: via uri (for Docker Remote API), Windows Pipes, or Unix socket:
 
-To configure a new Postgres container, simply do
+```csharp
+var client = new DockerToolsClientConfiguration()
+    .UsingUri(new Uri("http://localhost:2375"))
+    .Create();
+```
+
+```csharp
+var client = new DockerToolsClientConfiguration()
+    .UsingWindowsPipes()
+    .Create();
+```
+
+```csharp
+var client = new DockerToolsClientConfiguration()
+    .UsingUnixSocket()
+    .Create();
+```
+
+If DockerTools cannot connect to the Docker instance, it will throw a `DockerUnreachableException`.
+
+### Managing containers
+For the built-in containers, simply do the following:
 
 ```csharp
 client
@@ -33,9 +54,19 @@ client
     .WithParameters(() => new PostgresContainerParameters()
         .WithDefaultDatabase("MyDatabase")
         .WithUsername("MyUsername")
-        .WithPassword("MyPassword"))
+        .WithPassword("MyPassword")
+        .WithVersion("16.1"))
     .Build();
 ```
+Note that the parameters can vary from container to container.
+
+Natively available containers are:
+
+| Container | Image | Version |
+|-----------|-------|---------|
+| Postgres  | postgres | 14.3 |
+| Postgis   | postgis/postgis | 14-3.3 |
+| SQL Server | mcr.microsoft.com/mssql/server | 2022-latest |
 
 If you need to use another type of container, you can use the `GenericContainer` class:
 
@@ -90,8 +121,9 @@ To create the containers, run:
 ```csharp
 await client.CreateAsync();
 ```
+This is create the container on Docker, but will not start it. If the image is not present, it will be automatically obtained.
 
-Starting the containers is as simple as running:
+To start the container, run:
 
 ```csharp
 await client.StartAsync();
@@ -102,6 +134,7 @@ When done, you can remove the containers by using:
 ```csharp
 await client.StopAndRemoveAsync();
 ```
+Note that only containers created by DockerTools are affected by this operation. Previously existing ones remain untouched.
 
 All three methods return a collection of reports, one per container, that will help with diagnosing issues with setting up and running:
 
@@ -125,6 +158,21 @@ var connectionString = client
 
 The container property `Name` will always match the image name, i.e., for a generic container using image `MyImage`, `Name` will be `MyImage`.
 
+## Running scripts
+
+As of version 1.5.0, you can run scripts on the container itself. Note that if the container is an `IDatabaseContainer`, the script will be run directly on underlying database (only applies to the built-in container types of DockerTools).
+
+To run a script, simply select the container you want, and run the `ExecuteCommandAsync` method:
+
+```csharp
+var container = client.Containers.First(x => x.Name == "postgres");
+await container.ExecuteCommandAsync(...);
+```
+
+Notes:
+- the container needs to be running (and healthy, if the container supports health checks) in order for the command to run.
+- DockerTools does not currently report if the command ran successfully, or at all.
+
 ## Expanding the library
 
 You can create your own container setups by implementing a class that extends `IContainer`:
@@ -133,4 +181,10 @@ You can create your own container setups by implementing a class that extends `I
 public class MyContainer : IContainer
 ```
 
-If setting up a database container, extend from `IDatabaseContainer` instead. While this is not required, this interface exposes methods that help with setting up a connection string.
+If setting up a database container, extend from `IDatabaseContainer` instead. While this is not required, this interface exposes methods that help with setting up the connection string.
+
+For both cases, if flexibility is needed when initializing a container, you can create your own parameters class by inheriting from `IContainerParameters`:
+
+```csharp
+public class MyContainerParameters : IContainerParameters
+```

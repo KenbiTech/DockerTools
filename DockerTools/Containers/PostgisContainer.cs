@@ -1,6 +1,4 @@
-﻿using System.Text;
-using Docker.DotNet.Models;
-using Kenbi.DockerTools.Containers.Interfaces;
+﻿using Kenbi.DockerTools.Containers.Interfaces;
 using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Containers;
@@ -78,11 +76,13 @@ public class PostgisContainer : IDatabaseContainer
         };
     }
     
+    /// <inheritdoc />
     public Task PerformPostStartOperationsAsync(DockerToolsClient client, string id, CancellationToken token = default)
     {
         return Task.CompletedTask;
     }
 
+    /// <inheritdoc />
     public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
     {
         var commands = RunCommandUtils.SetupCommand(this.ScriptExecutionBaseCommand, command);
