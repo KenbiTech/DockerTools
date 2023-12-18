@@ -54,6 +54,7 @@ public class SqlServerContainer : IDatabaseContainer
         return this.EnvironmentVariables;
     }
     
+    /// <inheritdoc />
     public Task PerformPostStartOperationsAsync(DockerToolsClient client, string id, CancellationToken token = default)
     {
         var command = $"/opt/mssql-tools/bin/sqlcmd -U {this.Username} -P {this.Password} -Q";
@@ -64,6 +65,7 @@ public class SqlServerContainer : IDatabaseContainer
         return RunCommandUtils.InternalExecuteCommandAsync(client, id, commands, token);
     }
 
+    /// <inheritdoc />
     public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
     {
         var commands = RunCommandUtils.SetupCommand(this.ScriptExecutionBaseCommand, command);
