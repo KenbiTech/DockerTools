@@ -4,7 +4,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class GenericContainerParameters : IContainerParameters
+public sealed class GenericContainerParameters : IContainerParameters
 {
     internal string Image;
     internal IEnumerable<PortConfiguration> Ports;

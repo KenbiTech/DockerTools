@@ -3,7 +3,7 @@
 /// <summary>
 /// Lists information about a container removal.
 /// </summary>
-public class StopAndRemoveReport
+public sealed class StopAndRemoveReport
 {
     /// <summary>
     /// Name of the container.

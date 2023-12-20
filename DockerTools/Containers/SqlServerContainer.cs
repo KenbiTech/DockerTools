@@ -4,7 +4,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class SqlServerContainer : IDatabaseContainer
+public sealed class SqlServerContainer : IDatabaseContainer
 {
     /// <inheritdoc />
     public string Image => "mcr.microsoft.com/mssql/server";

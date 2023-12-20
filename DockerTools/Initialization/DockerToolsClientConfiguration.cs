@@ -3,7 +3,7 @@
 /// <summary>
 /// 
 /// </summary>
-public class DockerToolsClientConfiguration
+public sealed class DockerToolsClientConfiguration
 {
     private const string WindowsPipe = "npipe://./pipe/docker_engine";
     private const string UnixSocket = "unix:///var/run/docker.sock";
