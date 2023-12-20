@@ -7,9 +7,9 @@ internal static class DockerToolsClientInitializationExtensions
     private const string ApiUri = "http://localhost:2375";
     private const int Timeout = 30000;
 
-    internal static bool TryGetUriByEnvironment(out Uri uri)
+    internal static bool TryGetUriByEnvironment(out Uri? uri)
     {
-        HttpClient client = null;
+        HttpClient? client = null;
 
         try
         {

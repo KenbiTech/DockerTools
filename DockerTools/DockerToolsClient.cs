@@ -11,6 +11,7 @@ namespace Kenbi.DockerTools;
 public class DockerToolsClient : IAsyncDisposable
 {
     internal readonly DockerClient Client;
+    internal readonly Guid InstanceId;
 
     /// <summary>
     /// List of all configured containers.
@@ -20,11 +21,13 @@ public class DockerToolsClient : IAsyncDisposable
     internal DockerToolsClient()
     {
         this.Client = new DockerClientConfiguration().CreateClient();
+        this.InstanceId = Guid.NewGuid();
     }
 
     internal DockerToolsClient(Uri uri)
     {
         this.Client = new DockerClientConfiguration(uri).CreateClient();
+        this.InstanceId = Guid.NewGuid();
     }
 
     /// <summary>
