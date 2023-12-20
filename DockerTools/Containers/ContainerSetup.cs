@@ -6,7 +6,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class ContainerSetup<T> : IContainerSetup<T> where T : class, IContainer
+public sealed class ContainerSetup<T> : IContainerSetup<T> where T : class, IContainer
 {
     private readonly DockerToolsClient _client;
 

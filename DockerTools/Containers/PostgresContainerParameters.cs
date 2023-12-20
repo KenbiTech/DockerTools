@@ -5,7 +5,7 @@ namespace Kenbi.DockerTools.Containers;
 /// <summary>
 /// 
 /// </summary>
-public class PostgresContainerParameters : IContainerParameters
+public sealed class PostgresContainerParameters : IContainerParameters
 {
     internal string Username;
     internal string Password;
