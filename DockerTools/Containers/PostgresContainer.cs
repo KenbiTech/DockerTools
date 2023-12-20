@@ -4,7 +4,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class PostgresContainer : IDatabaseContainer
+public sealed class PostgresContainer : IDatabaseContainer
 {
     /// <inheritdoc />
     public string Image => "postgres";

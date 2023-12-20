@@ -5,7 +5,7 @@ namespace Kenbi.DockerTools.Containers;
 /// <summary>
 /// 
 /// </summary>
-public class PostgisContainerParameters : IContainerParameters
+public sealed class PostgisContainerParameters : IContainerParameters
 {
     internal string Username;
     internal string Password;

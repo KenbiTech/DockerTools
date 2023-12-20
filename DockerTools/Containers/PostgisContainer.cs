@@ -4,7 +4,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class PostgisContainer : IDatabaseContainer
+public sealed class PostgisContainer : IDatabaseContainer
 {
     /// <inheritdoc />
     public string Image => "postgis/postgis";

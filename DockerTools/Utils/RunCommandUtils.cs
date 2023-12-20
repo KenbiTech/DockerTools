@@ -9,15 +9,15 @@ internal static class RunCommandUtils
         var elements = command.Split(" ");
         var commands = new List<string>(elements.Length + 1);
         commands.AddRange(elements);
-        
+
         if (script != null)
         {
             commands.Add(script);
         }
-        
+
         return commands.ToArray();
     }
-    
+
     internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, CancellationToken token = default)
     {
         var @params = new ContainerExecCreateParameters
@@ -26,9 +26,16 @@ internal static class RunCommandUtils
             AttachStdout = true,
             AttachStderr = true
         };
-        
+
         var exec = await client.Client.Exec.ExecCreateContainerAsync(id, @params, token);
-        await client.Client.Exec.StartContainerExecAsync(exec.ID, token);
+        await client.Client.Exec.StartWithConfigContainerExecAsync(
+            exec.ID,
+            new ContainerExecStartParameters
+            {
+                Detach = false,
+                Tty = false
+            },
+            token);
     }
 
     internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, IList<string> environmentVariables, CancellationToken token = default)
@@ -38,8 +45,15 @@ internal static class RunCommandUtils
             Cmd = commands,
             Env = environmentVariables
         };
-        
+
         var exec = await client.Client.Exec.ExecCreateContainerAsync(id, @params, token);
-        await client.Client.Exec.StartContainerExecAsync(exec.ID, token);
+        await client.Client.Exec.StartWithConfigContainerExecAsync(
+            exec.ID,
+            new ContainerExecStartParameters
+            {
+                Detach = false,
+                Tty = false
+            },
+            token);
     }
 }

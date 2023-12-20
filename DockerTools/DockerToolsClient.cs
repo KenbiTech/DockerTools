@@ -8,7 +8,7 @@ namespace Kenbi.DockerTools;
 /// <summary>
 /// 
 /// </summary>
-public class DockerToolsClient : IAsyncDisposable
+public sealed class DockerToolsClient : IAsyncDisposable
 {
     internal readonly DockerClient Client;
     internal readonly Guid InstanceId;
