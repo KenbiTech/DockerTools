@@ -13,7 +13,7 @@ namespace Kenbi.DockerTools.Extensions;
 public static class DockerToolsClientExtensions
 {
     private const string HealthCheckHealthy = "healthy";
-    private const int HealthCheckAttempts = 5;
+    private const int HealthCheckAttempts = 10;
 
     /// <summary>
     /// Creates all configured containers.
@@ -150,21 +150,13 @@ public static class DockerToolsClientExtensions
 
             report = await StopAsync(dc, container, token);
 
-            if (report != null)
+            if (report.Status != OperationStatus.Success)
             {
                 result.Add(report);
                 continue;
             }
 
             report = await RemoveAsync(dc, container, token);
-
-            if (report != null)
-            {
-                result.Add(report);
-                continue;
-            }
-
-            report = new StopAndRemoveReport(container.Configuration.Name, container.Id, OperationStatus.Success);
 
             result.Add(report);
         }

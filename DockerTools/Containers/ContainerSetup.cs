@@ -5,7 +5,6 @@ using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Containers;
 
-
 /// <inheritdoc />
 public class ContainerSetup<T> : IContainerSetup<T> where T : class, IContainer
 {
@@ -42,6 +41,11 @@ public class ContainerSetup<T> : IContainerSetup<T> where T : class, IContainer
                 Timeout = this.Container.HealthCheck.Timeout,
                 Retries = this.Container.HealthCheck.Retries,
                 StartPeriod = this.Container.HealthCheck.StartPeriod
+            },
+            Labels = new Dictionary<string, string>
+            {
+                { "DockerTools", "true" },
+                { "DockerTools.ExecutionInstance", _client.InstanceId.ToString("N") }
             }
         };
 
@@ -100,6 +104,11 @@ public class ContainerSetup<T, TParameters> : IContainerSetup<T, TParameters> wh
                 Timeout = this.Container.HealthCheck.Timeout,
                 Retries = this.Container.HealthCheck.Retries,
                 StartPeriod = this.Container.HealthCheck.StartPeriod
+            },
+            Labels = new Dictionary<string, string>
+            {
+                { "DockerTools", "true" },
+                { "DockerTools.ExecutionInstance", _client.InstanceId.ToString("N") }
             }
         };
 
