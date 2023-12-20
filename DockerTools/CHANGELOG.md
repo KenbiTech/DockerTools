@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.2"></a>
+## [1.5.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.2) (2023-12-20)
+
+### Bug Fixes
+
+* Await container command execution ([2131e9f](https://www.github.com/KenbiTech/DockerTools/commit/2131e9fb731b38c3974d8ba1238beb2e7eb31bdd))
+
 <a name="1.5.1"></a>
 ## [1.5.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.1) (2023-12-20)
 
