@@ -3,7 +3,7 @@
 /// <summary>
 /// Lists information about a container startup.
 /// </summary>
-public class StartupReport
+public sealed class StartupReport
 {
     /// <summary>
     /// Name of the container.

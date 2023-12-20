@@ -4,7 +4,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public class GenericContainer : IContainer
+public sealed class GenericContainer : IContainer
 {
     /// <inheritdoc />
     public string Image { get; private set; }

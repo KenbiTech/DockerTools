@@ -7,9 +7,6 @@ using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Extensions;
 
-/// <summary>
-/// 
-/// </summary>
 public static class DockerToolsClientExtensions
 {
     private const string HealthCheckHealthy = "healthy";

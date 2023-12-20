@@ -5,7 +5,7 @@ namespace Kenbi.DockerTools.Initialization;
 /// <summary>
 /// 
 /// </summary>
-public class DockerToolsClientConfigurationInitializer
+public sealed class DockerToolsClientConfigurationInitializer
 {
     private readonly Uri _uri;
 

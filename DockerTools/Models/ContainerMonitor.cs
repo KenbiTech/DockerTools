@@ -1,5 +1,4 @@
-﻿using Docker.DotNet;
-using Docker.DotNet.Models;
+﻿using Docker.DotNet.Models;
 using Kenbi.DockerTools.Containers.Interfaces;
 using Kenbi.DockerTools.Models.Interfaces;
 using Kenbi.DockerTools.Utils;
@@ -7,7 +6,7 @@ using Kenbi.DockerTools.Utils;
 namespace Kenbi.DockerTools.Models;
 
 /// <inheritdoc />
-public class ContainerMonitor : IContainerMonitor
+public sealed class ContainerMonitor : IContainerMonitor
 {
     /// <inheritdoc />
     public string Id { get; private set; }

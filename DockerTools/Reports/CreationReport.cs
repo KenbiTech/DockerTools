@@ -3,7 +3,7 @@
 /// <summary>
 /// Lists information about a container creation.
 /// </summary>
-public class CreationReport
+public sealed class CreationReport
 {
     /// <summary>
     /// Name of the container.
