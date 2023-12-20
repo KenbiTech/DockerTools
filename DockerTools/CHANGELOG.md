@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.1"></a>
+## [1.5.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.1) (2023-12-20)
+
+### Bug Fixes
+
+* Revert Docker.Dotnet library and codes changes on container removal ([8dad301](https://www.github.com/KenbiTech/DockerTools/commit/8dad30196bc13582cccdbb0a1c75d6ab3d8f53ff))
+
 <a name="1.5.0"></a>
 ## [1.5.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.0) (2023-12-15)
 
