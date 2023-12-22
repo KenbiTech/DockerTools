@@ -28,6 +28,7 @@ try
     }
 
     await client.StartAsync();
+    await client.Containers[0].ExecuteCommandAsync("CREATE TABLE tests (id int, name varchar(255));");
     
     await client.StopAndRemoveAsync();
 

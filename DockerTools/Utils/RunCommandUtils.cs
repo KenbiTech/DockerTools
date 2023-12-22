@@ -20,22 +20,7 @@ internal static class RunCommandUtils
 
     internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, CancellationToken token = default)
     {
-        var @params = new ContainerExecCreateParameters
-        {
-            Cmd = commands,
-            AttachStdout = true,
-            AttachStderr = true
-        };
-
-        var exec = await client.Client.Exec.ExecCreateContainerAsync(id, @params, token);
-        await client.Client.Exec.StartWithConfigContainerExecAsync(
-            exec.ID,
-            new ContainerExecStartParameters
-            {
-                Detach = false,
-                Tty = false
-            },
-            token);
+        await InternalExecuteCommandAsync(client, id, commands, Array.Empty<string>(), token);
     }
 
     internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, IList<string> environmentVariables, CancellationToken token = default)
@@ -43,17 +28,15 @@ internal static class RunCommandUtils
         var @params = new ContainerExecCreateParameters
         {
             Cmd = commands,
-            Env = environmentVariables
+            Env = environmentVariables,
+            AttachStdout = true,
+            AttachStderr = true,
+            Tty = false
         };
 
         var exec = await client.Client.Exec.ExecCreateContainerAsync(id, @params, token);
-        await client.Client.Exec.StartWithConfigContainerExecAsync(
-            exec.ID,
-            new ContainerExecStartParameters
-            {
-                Detach = false,
-                Tty = false
-            },
-            token);
+        using var stream = await client.Client.Exec.StartAndAttachContainerExecAsync(exec.ID, false, token);
+
+        await stream.CopyOutputToAsync(null, Console.OpenStandardOutput(), Console.OpenStandardError(), token);
     }
 }
