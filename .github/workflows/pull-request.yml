@@ -19,21 +19,12 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     name: Validate
-    outputs:
-      job-status: ${{ job.status }}
-      should-notify: ${{ steps.configure-conditionals.outputs.should-notify }}
     if: github.event.pull_request.draft == false
     env:
       AWS_REGION_TOOLING: eu-central-1
     steps:
-    # Based on: https://github.com/GabLeRoux/github-actions-examples/blob/e0468ce2731b08bd8b1f7cd09d0b94c541310693/.github/workflows/secret_based_conditions.yml
-    - name: Configure general
-      id: configure-conditionals
-      run: |
-        echo "should-notify=${{ env.NOTIFICATIONS_ACTIVE }}" >> $GITHUB_OUTPUT
-   
     - name: Get code
-      uses: actions/checkout@v3  
+      uses: actions/checkout@v4
 
     - name: AWS Code Artifact
       uses: KenbiTech/github-actions-code-artifact@v2
@@ -54,8 +45,8 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     timeout-minutes: 3
-    needs: [validate, integration-tests]
-    if: always() && github.event.pull_request.draft == false && jobs.validate.outputs.should-notify == 'true' && contains(needs.*.result, 'failure')
+    needs: [validate]
+    if: always() && github.event.pull_request.draft == false && vars.NOTIFICATIONS_PR_ACTIVE == 'true' && contains(needs.*.result, 'failure')
     steps:
       - name: Notify failure on Slack
         id: notify
