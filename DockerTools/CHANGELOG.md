@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.6.0"></a>
+## [1.6.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.6.0) (2023-12-22)
+
+### Features
+
+* Add logs from commands to console ([b331adc](https://www.github.com/KenbiTech/DockerTools/commit/b331adca2fefbcd9f45525d9d2d58aec8a4d2c76))
+
 <a name="1.5.3"></a>
 ## [1.5.3](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.3) (2023-12-22)
 
