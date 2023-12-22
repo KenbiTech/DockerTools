@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.5.3"></a>
+## [1.5.3](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.3) (2023-12-22)
+
+### Bug Fixes
+
+* Config internal postgres environment variables to avoid root user warning message ([551351d](https://www.github.com/KenbiTech/DockerTools/commit/551351da71c47ec4dd86b334662368c11c7ae269))
+
 <a name="1.5.2"></a>
 ## [1.5.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.5.2) (2023-12-20)
 
