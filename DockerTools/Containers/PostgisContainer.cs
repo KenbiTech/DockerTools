@@ -71,8 +71,11 @@ public sealed class PostgisContainer : IDatabaseContainer
         return new List<string>
         {
             $"POSTGRES_USER={this.Username}",
+            $"PGUSER={this.Username}",
             $"POSTGRES_DB={this.Database}",
-            $"POSTGRES_PASSWORD={this.Password}"
+            $"PGDATABASE={this.Database}",
+            $"POSTGRES_PASSWORD={this.Password}",
+            $"PGPASSWORD={this.Password}"
         };
     }
     
