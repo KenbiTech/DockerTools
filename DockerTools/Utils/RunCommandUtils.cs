@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet.Models;
+using Kenbi.DockerTools.Reports;
 
 namespace Kenbi.DockerTools.Utils;
 
@@ -18,25 +19,27 @@ internal static class RunCommandUtils
         return commands.ToArray();
     }
 
-    internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, CancellationToken token = default)
+    internal static Task<CommandExecutionReport> InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, CancellationToken token = default)
     {
-        await InternalExecuteCommandAsync(client, id, commands, Array.Empty<string>(), token);
+        return InternalExecuteCommandAsync(client, id, commands, Array.Empty<string>(), token);
     }
 
-    internal static async Task InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, IList<string> environmentVariables, CancellationToken token = default)
+    internal static async Task<CommandExecutionReport> InternalExecuteCommandAsync(DockerToolsClient client, string id, IList<string> commands, IList<string> environmentVariables, CancellationToken token = default)
     {
         var @params = new ContainerExecCreateParameters
         {
             Cmd = commands,
             Env = environmentVariables,
             AttachStdout = true,
-            AttachStderr = true,
-            Tty = false
+            AttachStderr = true
         };
 
         var exec = await client.Client.Exec.ExecCreateContainerAsync(id, @params, token);
-        using var stream = await client.Client.Exec.StartAndAttachContainerExecAsync(exec.ID, false, token);
+        using (var stream = await client.Client.Exec.StartAndAttachContainerExecAsync(exec.ID, false, token))
+        {
+            var (stdout, stderr) = await stream.ReadOutputToEndAsync(token);
 
-        await stream.CopyOutputToAsync(null, Console.OpenStandardOutput(), Console.OpenStandardError(), token);
+            return new CommandExecutionReport(stdout, stderr);
+        }
     }
 }

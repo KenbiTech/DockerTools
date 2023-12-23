@@ -1,4 +1,5 @@
-﻿using Kenbi.DockerTools.Utils;
+﻿using Kenbi.DockerTools.Reports;
+using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Containers.Interfaces;
 
@@ -57,5 +58,5 @@ public interface IContainer
     /// <param name="id">The container id.</param>
     /// <param name="command">The command to execute inside the container.</param>
     /// <param name="token">A cancellation token. Optional.</param>
-    internal Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default);
+    internal Task<CommandExecutionReport> ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default);
 }
