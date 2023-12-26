@@ -1,5 +1,6 @@
 ﻿using Docker.DotNet.Models;
 using Kenbi.DockerTools.Containers.Interfaces;
+using Kenbi.DockerTools.Reports;
 using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Models.Interfaces;
@@ -56,7 +57,7 @@ public interface IContainerMonitor
     /// <param name="command">The command to execute inside the container.</param>
     /// <param name="token">A cancellation token. Optional.</param>
     /// <returns></returns>
-    public Task ExecuteCommandAsync(string command, CancellationToken token = default) => this.Container.ExecuteCommandAsync(this.Client, this.Id, command, token);
+    public Task<CommandExecutionReport> ExecuteCommandAsync(string command, CancellationToken token = default) => this.Container.ExecuteCommandAsync(this.Client, this.Id, command, token);
 
     internal void AddId(string id, bool newContainer);
 

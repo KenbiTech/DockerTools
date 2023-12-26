@@ -1,4 +1,5 @@
 ﻿using Kenbi.DockerTools.Containers.Interfaces;
+using Kenbi.DockerTools.Reports;
 using Kenbi.DockerTools.Utils;
 
 namespace Kenbi.DockerTools.Containers;
@@ -66,7 +67,7 @@ public sealed class SqlServerContainer : IDatabaseContainer
     }
 
     /// <inheritdoc />
-    public Task ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
+    public Task<CommandExecutionReport> ExecuteCommandAsync(DockerToolsClient client, string id, string command, CancellationToken token = default)
     {
         var commands = RunCommandUtils.SetupCommand(this.ScriptExecutionBaseCommand, command);
 
