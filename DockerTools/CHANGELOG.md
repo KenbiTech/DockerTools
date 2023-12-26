@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="1.7.0"></a>
+## [1.7.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.7.0) (2023-12-26)
+
+### Features
+
+* Improve command execution feedback ([45584e3](https://www.github.com/KenbiTech/DockerTools/commit/45584e3cf6dfdfdfc481adc98557cf5d0c2b956b))
+
 <a name="1.6.0"></a>
 ## [1.6.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v1.6.0) (2023-12-22)
 
