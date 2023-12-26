@@ -28,7 +28,16 @@ try
     }
 
     await client.StartAsync();
-    await client.Containers[0].ExecuteCommandAsync("CREATE TABLE tests (id int, name varchar(255));");
+    var report = await client.Containers[0].ExecuteCommandAsync("CREATE TABLE tests (id int, name varchar(255));");
+
+    if (report.RanSuccessfully)
+    {
+        Console.WriteLine("Command ran successfully. Output: " + report.ReturnMessage);
+    }
+    else
+    {
+        Console.WriteLine("Command failed to run. Output: " + report.ErrorMessage);
+    }
     
     await client.StopAndRemoveAsync();
 
