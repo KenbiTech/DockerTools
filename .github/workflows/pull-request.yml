@@ -44,7 +44,7 @@ jobs:
     # - name: Run Tests
       # id: tests
       # run: |
-         # dotnet test  --configuration Release  --no-build ./DockerTools.Tests.Integration 
+         # dotnet test --configuration Release --no-build --verbosity quiet ./DockerTools.Tests.Integration 
                                                                                  
   notify:
     runs-on: ubuntu-latest
