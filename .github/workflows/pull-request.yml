@@ -12,6 +12,10 @@ on:
     - 'push*.sh'
   workflow_dispatch:
 
+permissions:
+  id-token: write
+  contents: read
+
 env:
   NOTIFICATIONS_ACTIVE: ${{ secrets.NOTIFICATIONS_PR_ACTIVE || 'true' }}
 jobs:
