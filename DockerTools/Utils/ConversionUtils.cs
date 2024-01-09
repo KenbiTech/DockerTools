@@ -1,25 +1,23 @@
-﻿using Docker.DotNet.Models;
-using Kenbi.DockerTools.Models;
+﻿using System.Text.RegularExpressions;
+using Docker.DotNet.Models;
+using Newtonsoft.Json;
 
 namespace Kenbi.DockerTools.Utils;
 
 internal static class ConversionUtils
 {
-    internal static Dictionary<string, EmptyStruct>? ConvertToExposedPorts(this IEnumerable<PortConfiguration>? ports)
+    private static readonly Regex ErrorMessageRegex = new("\"[a-zA-Z0-9]{64}\"");
+
+    internal static Dictionary<string, EmptyStruct> ConvertToExposedPorts(this IEnumerable<PortConfiguration> ports)
     {
-        return ports?
+        return ports
             .Select(port => port.Container.AddTcpToPort())
             .ToDictionary(host => host, _ => new EmptyStruct());
     }
 
-    internal static Dictionary<string, IList<PortBinding>> ConvertToPortBindings(this IEnumerable<PortConfiguration>? ports)
+    internal static Dictionary<string, IList<PortBinding>> ConvertToPortBindings(this IEnumerable<PortConfiguration> ports)
     {
         var result = new Dictionary<string, IList<PortBinding>>();
-
-        if (ports == null)
-        {
-            return result;
-        }
 
         foreach (var port in ports)
         {
@@ -41,9 +39,11 @@ internal static class ConversionUtils
     {
         var result = new List<PortConfiguration>();
 
-        foreach (var (containerPort, list) in portBindings)
+        foreach (var portBinding in portBindings)
         {
-            var hostPort = list.FirstOrDefault()?.HostPort ?? "0";
+            var containerPort = portBinding.Key;
+
+            var hostPort = portBinding.Value.FirstOrDefault()?.HostPort ?? "0";
 
             result.Add(new PortConfiguration
             {
@@ -55,18 +55,48 @@ internal static class ConversionUtils
         return result;
     }
 
-    internal static Dictionary<string, EmptyStruct>? ConvertToVolumes(this Dictionary<string, string>? volumes)
+    internal static bool TryParseExistingIdInResponse(string errorMessage, out string result)
     {
-        return volumes?
-            .Select(volume => volume.Key)
-            .ToDictionary(volume => volume, _ => new EmptyStruct());
+        result = string.Empty;
+
+        var substring = errorMessage
+            .Substring(errorMessage.IndexOf('{'), errorMessage.Length - errorMessage.IndexOf('{'));
+
+        ErrorMessage conversion;
+
+        try
+        {
+            conversion = JsonConvert.DeserializeObject<ErrorMessage>(substring);
+        }
+        catch
+        {
+            return false;
+        }
+
+        if (conversion == null)
+        {
+            return false;
+        }
+
+        var match = ErrorMessageRegex.Match(conversion.Message);
+
+        if (string.IsNullOrWhiteSpace(match.Value))
+        {
+            return false;
+        }
+
+        result = match.Value.Replace("\"", string.Empty);
+        return true;
     }
 
-    internal static IList<string>? ConvertToVolumeBinds(this Dictionary<string, string>? volumes)
+    internal static string StripTcpFromPort(this string port)
     {
-        return volumes?
-            .Select(x => $"{x.Key}:{x.Value}")
-            .ToList();
+        if ("/tcp".Contains(port))
+        {
+            return port.Substring(0, port.IndexOf("/", StringComparison.Ordinal));
+        }
+
+        return port;
     }
 
     private static string AddTcpToPort(this string port)
@@ -77,5 +107,10 @@ internal static class ConversionUtils
         }
 
         return port;
+    }
+
+    internal class ErrorMessage
+    {
+        public string Message { get; set; }
     }
 }

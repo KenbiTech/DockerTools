@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerTools", "DockerTools/DockerTools.csproj", "{1D29A380-D1AC-44C9-99A0-0BE89D9999A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerTools.ConsoleApp", "DockerTools.ConsoleApp\DockerTools.ConsoleApp.csproj", "{9AE37ECF-3960-4318-BE96-1DC1F9028621}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DockerTools.ConsoleApp", "DockerTools.ConsoleApp\DockerTools.ConsoleApp\DockerTools.ConsoleApp.csproj", "{9AE37ECF-3960-4318-BE96-1DC1F9028621}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
