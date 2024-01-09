@@ -5,7 +5,7 @@ DockerTools is a simple wrapper on top of [Docker.DotNet](https://github.com/dot
 DockerTools was created as a means of abstracting the complexity of managing database containers when running automated tests. It provides a simple, fluent approach to creating, interacting, and disposing of containers.
 
 ## How to use
-## Version 2.x
+## Version 3.x
 ### Creating a container
 Install the package, then simply perform the following:
 ```csharp
@@ -34,7 +34,15 @@ var container = await new DockerTools<Postgres>()
            .CreateAsync();
 ```
 
-Both methods can be combined:
+If, for some reason, you cannot properly dispose of a container, you can use the `WithCleanUp(true)` option:
+
+```csharp
+var container = await new DockerTools<Postgres>()
+           .WithCleanUp(true)
+           .CreateAsync();
+```
+
+All methods can be combined:
 
 ```csharp
 var container = await new DockerTools<Postgres>()
@@ -44,6 +52,7 @@ var container = await new DockerTools<Postgres>()
                .WithPassword("myPassword")
                .WithTag("14.3"))
            .WithConnection(options => options.ConnectionType = new RemoteApiConnection(new Uri("http://localhost:2375")))
+           .WithCleanUp(true)
            .CreateAsync();
 ```
 
@@ -75,6 +84,8 @@ await using (var container = await new DockerTools<Postgres>().CreateAsync())
     ...
 }
 ```
+
+Alternatively, if disposing is not an option, you can initialize the container with the `WithCleanUp(true)` method (see the [Creating a Container](#creating-a-container) section).
 
 ### Supported Databases
 Version 2.x uses the following images and versions for its databases:
