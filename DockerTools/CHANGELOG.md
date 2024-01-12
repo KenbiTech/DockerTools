@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.1"></a>
+## [3.0.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.1) (2024-01-12)
+
+### Bug Fixes
+
+* Remove unneeded references in csproj ([5c5f1de](https://www.github.com/KenbiTech/DockerTools/commit/5c5f1dec2d1ce352745c8b7f7b00725dbb5d760c))
+
 <a name="3.0.0"></a>
 ## [3.0.0](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.0) (2024-01-09)
 
