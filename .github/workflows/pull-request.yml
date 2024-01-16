@@ -21,7 +21,7 @@ env:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     name: Validate
     if: github.event.pull_request.draft == false
     env:

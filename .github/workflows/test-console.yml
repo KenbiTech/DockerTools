@@ -23,12 +23,10 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: AWS Code Artifact
-        uses: KenbiTech/github-actions-code-artifact@v2
+        uses: KenbiTech/github-actions-code-artifact@v3
         with:
-          aws-account: ${{ secrets.AWS_ACCOUNT_TOOLING  }}
           aws-region: ${{ env.AWS_REGION }}
-          aws-access-id: ${{ secrets.AWS_ACCESS_KEY_ID_TOOLING_TEMP }}
-          aws-access-secret: ${{ secrets.AWS_SECRET_ACCESS_KEY_TOOLING_TEMP }}
+          aws-role: ${{ vars.AWS_TOOLING_CODEARTIFACT_ROLE }}
       
       - name: Build
         run: |
