@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.2"></a>
+## [3.0.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.2) (2024-01-18)
+
+### Bug Fixes
+
+* Support xUnit SynchronizationContext ([07312c0](https://www.github.com/KenbiTech/DockerTools/commit/07312c07d1e9aba457bf24807c4c0ca0928a5f30))
+
 <a name="3.0.1"></a>
 ## [3.0.1](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.1) (2024-01-12)
 
