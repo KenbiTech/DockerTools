@@ -11,7 +11,7 @@ internal static class CreateContainerOperations
     {
         var @params = ConfigureCreation(container, instanceId);
 
-        var response = await client.Containers.CreateContainerAsync(@params, token);
+        var response = await client.Containers.CreateContainerAsync(@params, token).ConfigureAwait(false);
 
         return response.ID;
     }

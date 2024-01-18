@@ -30,10 +30,10 @@ internal static class CommandExecutionOperations
             Tty = false
         };
 
-        var exec = await client.Exec.ExecCreateContainerAsync(id, @params, token);
-        using var stream = await client.Exec.StartAndAttachContainerExecAsync(exec.ID, false, token);
+        var exec = await client.Exec.ExecCreateContainerAsync(id, @params, token).ConfigureAwait(false);
+        using var stream = await client.Exec.StartAndAttachContainerExecAsync(exec.ID, false, token).ConfigureAwait(false);
 
-        var (_, stderr) = await stream.ReadOutputToEndAsync(token);
+        var (_, stderr) = await stream.ReadOutputToEndAsync(token).ConfigureAwait(false);
 
         return new ScriptExecutionResult(stderr);
     }

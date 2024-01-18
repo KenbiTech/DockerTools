@@ -16,7 +16,7 @@ public sealed class RemoteApiConnection : DockerToolsConnectionType
     {
         Client = new DockerClientConfiguration(Uri).CreateClient();
 
-        await PingAsync(token);
+        await PingAsync(token).ConfigureAwait(false);
 
         return Client;
     }

@@ -25,7 +25,7 @@ internal static class StartContainerOperations
 
         for (var i = 0; i < Attempts; i++)
         {
-            var response = await client.Containers.InspectContainerAsync(id, token);
+            var response = await client.Containers.InspectContainerAsync(id, token).ConfigureAwait(false);
 
             if ((response.State.Health == null && response.State.Status == Running) ||
                 response.State.Health?.Status == Healthy)
@@ -41,7 +41,7 @@ internal static class StartContainerOperations
 
     internal static async Task<IEnumerable<PortConfiguration>> GetRunningPortsAsync(DockerClient client, string id, CancellationToken token)
     {
-        var response = await client.Containers.InspectContainerAsync(id, token);
+        var response = await client.Containers.InspectContainerAsync(id, token).ConfigureAwait(false);
 
         var portConfiguration = response.NetworkSettings.Ports.ConvertToPortConfiguration();
 
