@@ -6,7 +6,7 @@ internal sealed class AutoDetectConnection : DockerToolsConnectionType
 {
     internal async Task<DockerClient> CreateClientAsync(CancellationToken token)
     {
-        var (result, uri) = await TryAccessingDockerViaRemoteApiAsync(token);
+        var (result, uri) = await TryAccessingDockerViaRemoteApiAsync(token).ConfigureAwait(false);
 
         if (result)
         {
@@ -16,7 +16,7 @@ internal sealed class AutoDetectConnection : DockerToolsConnectionType
 
         Client = new DockerClientConfiguration().CreateClient();
 
-        await PingAsync(token);
+        await PingAsync(token).ConfigureAwait(false);
 
         return Client;
     }
@@ -31,7 +31,7 @@ internal sealed class AutoDetectConnection : DockerToolsConnectionType
 
         try
         {
-            var response = await client.GetAsync($"_ping", token);
+            var response = await client.GetAsync($"_ping", token).ConfigureAwait(false);
 
             if (response.IsSuccessStatusCode)
             {

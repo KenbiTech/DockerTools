@@ -83,7 +83,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
     {
         try
         {
-            return await InternalCreateAsync(token);
+            return await InternalCreateAsync(token).ConfigureAwait(false);
         }
         catch
         {
@@ -94,11 +94,11 @@ public class DockerTools<T> where T : IContainerTemplate, new()
 
             if (this.Id == null)
             {
-                await Task.Run(() => this._client.Dispose(), token);
+                await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
                 throw;
             }
 
-            await PerformCleanupAsync(token);
+            await PerformCleanupAsync(token).ConfigureAwait(false);
 
             throw;
         }
@@ -108,35 +108,35 @@ public class DockerTools<T> where T : IContainerTemplate, new()
     {
         if (this._connectionType is AutoDetectConnection connection)
         {
-            this._client = await connection.CreateClientAsync(token);
+            this._client = await connection.CreateClientAsync(token).ConfigureAwait(false);
         }
         else
         {
-            this._client = await (this._connectionType as RemoteApiConnection)!.CreateClientAsync(token);
+            this._client = await (this._connectionType as RemoteApiConnection)!.CreateClientAsync(token).ConfigureAwait(false);
         }
 
-        await Operations.PullImageOperations.PullImageAsync(this._client, this.Container.Image, this.Container.Tag, token);
+        await Operations.PullImageOperations.PullImageAsync(this._client, this.Container.Image, this.Container.Tag, token).ConfigureAwait(false);
 
-        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.Container, this._instanceId, token);
+        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.Container, this._instanceId, token).ConfigureAwait(false);
 
         if (this.Id == null)
         {
             throw new UnableToCreateContainerException();
         }
 
-        if (!await Operations.StartContainerOperations.TryStartContainerAsync(this._client, this.Id, token))
+        if (!await Operations.StartContainerOperations.TryStartContainerAsync(this._client, this.Id, token).ConfigureAwait(false))
         {
             throw new UnableToStartContainerException();
         }
 
-        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.Container, token))
+        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.Container, token).ConfigureAwait(false))
         {
             throw new ContainerIsNotHealthyException();
         }
 
-        var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token);
+        var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
-        var result = await this.Container.PerformPostStartOperationsAsync(this._client, this.Id, token);
+        var result = await this.Container.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
         if (!result.Success)
         {
@@ -145,7 +145,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
 
         if (this._useValkyrie)
         {
-            await StartValkyrieAsync(token);
+            await StartValkyrieAsync(token).ConfigureAwait(false);
         }
 
         return new Container<T>(this.Id, this._client, this.Container, ports.First().Host!);
@@ -155,9 +155,9 @@ public class DockerTools<T> where T : IContainerTemplate, new()
     {
         IContainerTemplate container = new Valkyrie();
         container.ReplaceDefaultParameters(new DockerToolsContainerOptions().WithInstanceId(this._instanceId));
-        await Operations.PullImageOperations.PullImageAsync(this._client!, container.Image, container.Tag, token);
-        var id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client!, container, this._instanceId, token);
-        if (!await Operations.StartContainerOperations.TryStartContainerAsync(this._client!, id, token))
+        await Operations.PullImageOperations.PullImageAsync(this._client!, container.Image, container.Tag, token).ConfigureAwait(false);
+        var id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client!, container, this._instanceId, token).ConfigureAwait(false);
+        if (!await Operations.StartContainerOperations.TryStartContainerAsync(this._client!, id, token).ConfigureAwait(false))
         {
             throw new UnableToStartValkyrieException();
         }
@@ -167,7 +167,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
     {
         try
         {
-            await this._client!.Containers.KillContainerAsync(this.Id, new ContainerKillParameters(), token);
+            await this._client!.Containers.KillContainerAsync(this.Id, new ContainerKillParameters(), token).ConfigureAwait(false);
         }
         catch
         {
@@ -182,8 +182,8 @@ public class DockerTools<T> where T : IContainerTemplate, new()
                 Force = true,
                 RemoveVolumes = true
             },
-            token);
+            token).ConfigureAwait(false);
 
-        await Task.Run(() => this._client.Dispose(), token);
+        await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
     }
 }

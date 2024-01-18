@@ -8,14 +8,14 @@ internal static class PullImageOperations
 {
     internal static async Task PullImageAsync(IDockerClient client, string image, string tag, CancellationToken token)
     {
-        if (await DoesImageExistLocallyAsync(client, image, tag, token))
+        if (await DoesImageExistLocallyAsync(client, image, tag, token).ConfigureAwait(false))
         {
             return;
         }
 
         try
         {
-            await InternalTryPullImageAsync(client, image, tag, token);
+            await InternalTryPullImageAsync(client, image, tag, token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
@@ -38,7 +38,7 @@ internal static class PullImageOperations
                     }
                 }
             },
-            token);
+            token).ConfigureAwait(false);
 
         return results.Any();
     }

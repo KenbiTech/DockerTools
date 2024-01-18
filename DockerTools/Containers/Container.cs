@@ -30,7 +30,7 @@ public sealed class Container<T> : IContainer<T> where T : IContainerTemplate, n
     public async ValueTask DisposeAsync()
     {
         var token = CancellationToken.None;
-        await _client.Containers.KillContainerAsync(this.Id, new ContainerKillParameters(), token);
+        await _client.Containers.KillContainerAsync(this.Id, new ContainerKillParameters(), token).ConfigureAwait(false);
         await _client.Containers.RemoveContainerAsync(
             this.Id,
             new ContainerRemoveParameters
@@ -38,8 +38,8 @@ public sealed class Container<T> : IContainer<T> where T : IContainerTemplate, n
                 Force = true,
                 RemoveVolumes = true
             },
-            token);
-        await Task.Run(() => _client.Dispose(), token);
+            token).ConfigureAwait(false);
+        await Task.Run(() => _client.Dispose(), token).ConfigureAwait(false);
         this._containerTemplate = new T();
         this.ConnectionString = null!;
     }

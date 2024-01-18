@@ -12,7 +12,7 @@ public abstract class DockerToolsConnectionType
     {
         try
         {
-            await Client!.System.PingAsync(token);
+            await Client!.System.PingAsync(token).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
