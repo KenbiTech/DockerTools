@@ -1,13 +1,18 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Diagnostics;
 using Kenbi.DockerTools;
 using Kenbi.DockerTools.Containers.Templates;
 
 Console.WriteLine("Starting new DockerTools run...");
 
+var stopwatch = new Stopwatch();
+stopwatch.Start();
 var container = await new DockerTools<Postgres>()
     //.WithCleanUp(true)
     .CreateAsync();
+stopwatch.Stop();
+Console.WriteLine($"Initialization time: {stopwatch.ElapsedMilliseconds}ms");
 
 const string script = @"CREATE TABLE spatial_ref_sys
 (
