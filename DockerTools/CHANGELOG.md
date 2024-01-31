@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.3"></a>
+## [3.0.3](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.3) (2024-01-31)
+
+### Bug Fixes
+
+* SqlServer healthcheck tweak ([873a6a1](https://www.github.com/KenbiTech/DockerTools/commit/873a6a15157f7c085fbc76911ba367a254b71cbf))
+
 <a name="3.0.2"></a>
 ## [3.0.2](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.2) (2024-01-18)
 
