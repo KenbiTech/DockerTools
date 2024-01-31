@@ -38,8 +38,8 @@ public sealed class Postgis : IContainerTemplate
     HealthCheck IContainerTemplate.HealthCheck => new HealthCheck
     {
         Command = "pg_isready",
-        Interval = new TimeSpan(0, 0, 10),
-        Timeout = new TimeSpan(0, 0, 5),
+        Interval = new TimeSpan(0, 0, 2),
+        Timeout = new TimeSpan(0, 0, 2),
         Retries = 5
     };
 
