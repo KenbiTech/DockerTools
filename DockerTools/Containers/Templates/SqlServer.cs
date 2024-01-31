@@ -36,10 +36,9 @@ public sealed class SqlServer : IContainerTemplate
     HealthCheck IContainerTemplate.HealthCheck => new()
     {
         Command = "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null",
-        Interval = new TimeSpan(0, 0, 10),
-        Timeout = new TimeSpan(0, 0, 5),
-        Retries = 5,
-        StartPeriod = 10
+        Interval = new TimeSpan(0, 0, 2),
+        Timeout = new TimeSpan(0, 0, 2),
+        Retries = 5
     };
     
     void IContainerTemplate.ReplaceDefaultParameters(DockerToolsContainerOptions options)
