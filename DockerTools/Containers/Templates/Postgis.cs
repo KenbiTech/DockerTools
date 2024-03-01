@@ -38,9 +38,10 @@ public sealed class Postgis : IContainerTemplate
     HealthCheck IContainerTemplate.HealthCheck => new HealthCheck
     {
         Command = "pg_isready",
-        Interval = new TimeSpan(0, 0, 2),
+        Interval = new TimeSpan(0, 0, 30),
         Timeout = new TimeSpan(0, 0, 2),
-        Retries = 5
+        Retries = 5,
+        StartPeriod = 60
     };
 
     void IContainerTemplate.ReplaceDefaultParameters(DockerToolsContainerOptions options)
@@ -72,7 +73,7 @@ public sealed class Postgis : IContainerTemplate
     }
 
     string IContainerTemplate.GetConnectionString(string hostPort)
-        => $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};";
+        => $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};Command Timeout=0;";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {

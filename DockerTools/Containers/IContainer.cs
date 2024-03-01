@@ -4,10 +4,17 @@ using Kenbi.DockerTools.Models;
 
 namespace Kenbi.DockerTools.Containers;
 
-public interface IContainer<T> : IAsyncDisposable where T : IContainerTemplate
+/// <summary>
+/// Represents an instance of a DockerTools container tracker.
+/// </summary>
+/// <typeparam name="T"></typeparam>
+public interface IContainer<T> : IAsyncDisposable, IDisposable where T : IContainerTemplate
 {
     internal DockerClient Client { get; }
     
+    /// <summary>
+    /// The identifier of the container on Docker.
+    /// </summary>
     public string Id { get; }
     
     /// <summary>
