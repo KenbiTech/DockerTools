@@ -14,6 +14,8 @@ internal class HealthCheck
 
     /// <summary>
     /// How long to wait in between attempts.
+    /// Also applies to the amount of time awaited
+    /// before first attempt.
     /// </summary>
     internal TimeSpan Interval { get; init; } = new(0, 0, 0);
 
@@ -28,7 +30,10 @@ internal class HealthCheck
     internal int Retries { get; init; } = 0;
 
     /// <summary>
-    /// Time in seconds to wait before first attempting to check health.
+    /// Provides initialization time for containers that need time to bootstrap.
+    /// Probe failure during that period will not be counted towards the maximum number of retries.
+    /// However, if a health check succeeds during the start period, the container is considered started
+    /// and all consecutive failures will be counted towards the maximum number of retries.
     /// </summary>
     internal long StartPeriod { get; init; } = 0;
 }
