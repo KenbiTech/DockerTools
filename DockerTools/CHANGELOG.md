@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [versionize](https://github.com/versionize/versionize) for commit guidelines.
 
+<a name="3.0.4"></a>
+## [3.0.4](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.4) (2024-03-04)
+
+### Bug Fixes
+
+* Tweaks to container initialization ([774f29b](https://www.github.com/KenbiTech/DockerTools/commit/774f29b1af1f2477ae5b9bc422e10e1428318390))
+
 <a name="3.0.3"></a>
 ## [3.0.3](https://www.github.com/KenbiTech/DockerTools/releases/tag/v3.0.3) (2024-01-31)
 
