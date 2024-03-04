@@ -1,4 +1,5 @@
-﻿using Docker.DotNet;
+﻿using System.Diagnostics;
+using Docker.DotNet;
 using Docker.DotNet.Models;
 using Kenbi.DockerTools.Containers.Templates;
 using Kenbi.DockerTools.Models;
@@ -8,10 +9,10 @@ namespace Kenbi.DockerTools.Operations;
 
 internal static class StartContainerOperations
 {
-    private const int Attempts = 10;
-    private const int AttemptTimeout = 2000;
-    private const string Running = "Running";
     private const string Healthy = "healthy";
+    private const int DefaultAttemptTimeout = 2000;
+    private static readonly TimeSpan DefaultOverallTimeout = new(0, 1, 0);
+    private const int ConsecutiveHealthyResults = 5;
 
     internal static Task<bool> TryStartContainerAsync(DockerClient client, string id, CancellationToken token)
     {
@@ -21,19 +22,40 @@ internal static class StartContainerOperations
     internal static async Task<bool> IsContainerHealthy(DockerClient client, string id, IContainerTemplate container, CancellationToken token)
     {
         var startPeriod = (int)(container.HealthCheck?.StartPeriod ?? 0) * 1000;
+        var attemptTimeout = container.HealthCheck?.Timeout.Seconds * 1000 ?? DefaultAttemptTimeout;
+        var overallTimeout = ((container.HealthCheck?.Timeout + container.HealthCheck?.Interval) * container.HealthCheck?.Retries) ?? DefaultOverallTimeout;
+        var healthCounter = 0;
+        
         Thread.Sleep(startPeriod);
 
-        for (var i = 0; i < Attempts; i++)
+        var stopWatch = new Stopwatch();
+        stopWatch.Start();
+        while (stopWatch.Elapsed < overallTimeout)
         {
             var response = await client.Containers.InspectContainerAsync(id, token).ConfigureAwait(false);
 
-            if ((response.State.Health == null && response.State.Status == Running) ||
-                response.State.Health?.Status == Healthy)
+            switch (response.State.Health)
             {
-                return true;
+                case null when response.State.Running: // container with no health check
+                    return true;
+                case { Status: Healthy, FailingStreak: 0 }:
+                    healthCounter += 1;
+                    break;
+                default:
+                    healthCounter -= 1;
+                    break;
             }
 
-            Thread.Sleep(AttemptTimeout);
+            switch (healthCounter)
+            {
+                case ConsecutiveHealthyResults:
+                    return true;
+                case ConsecutiveHealthyResults * -1:
+                    return false;
+                default:
+                    Thread.Sleep(attemptTimeout);
+                    break;
+            }
         }
 
         return false;
