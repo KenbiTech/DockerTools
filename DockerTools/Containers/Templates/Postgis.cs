@@ -11,7 +11,7 @@ namespace Kenbi.DockerTools.Containers.Templates;
 public sealed class Postgis : IContainerTemplate
 {
     public string Image => "postgis/postgis";
-    public string Tag { get; private set; } = "14-3.4";
+    public string Tag { get; private set; } = "16-3.4";
     public string Database { get; private set; } = "postgres";
     public string Username { get; private set; } = "postgres";
     public string Password { get; private set; } = "postgres";

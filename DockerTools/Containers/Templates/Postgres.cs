@@ -11,7 +11,7 @@ namespace Kenbi.DockerTools.Containers.Templates;
 public sealed class Postgres : IContainerTemplate
 {
     public string Image => "postgres";
-    public string Tag { get; private set; } = "14.3";
+    public string Tag { get; private set; } = "16";
     public string Database { get; private set; } = "postgres";
     public string Username { get; private set; } = "postgres";
     public string Password { get; private set; } = "postgres";
