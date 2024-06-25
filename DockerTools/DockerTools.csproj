@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFrameworks>net6.0;net8.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Kenbi.DockerTools</AssemblyName>
@@ -9,7 +9,7 @@
         <IsPackable>true</IsPackable>
         <Company>Kenbi</Company>
         <Product>Kenbi.DockerTools</Product>
-        <Version>3.0.5</Version>
+        <Version>3.0.6</Version>
         <RepositoryUrl>https://github.com/KenbiTech/DockerTools</RepositoryUrl>
         <RepositoryType>Library</RepositoryType>
     </PropertyGroup>
