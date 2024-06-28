@@ -6,7 +6,7 @@ using Kenbi.DockerTools.Models;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public sealed class DatabaseContainer<T> : IDatabaseContainer<T> where T : IDatabaseContainerTemplate, new()
+public sealed class DatabaseContainer<T> : IDatabaseContainer<T> where T : class, IDatabaseContainerTemplate
 {
     private T _containerTemplate;
     private readonly DockerClient _client;

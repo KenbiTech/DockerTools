@@ -6,7 +6,7 @@ using Kenbi.DockerTools.Models;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public sealed class Container<T> : IContainer<T> where T : IContainerTemplate, new()
+public sealed class Container<T> : IContainer<T> where T : class, IContainerTemplate
 {
     private T _containerTemplate;
     private readonly DockerClient _client;

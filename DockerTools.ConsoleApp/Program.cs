@@ -26,7 +26,7 @@ public static class Program
     }
 
     private static async Task ContainerRunAsync<T>(int instance)
-        where T : IDatabaseContainerTemplate, new()
+        where T : class, IDatabaseContainerTemplate, new()
     {
         Console.WriteLine($"Instance {instance} starting...");
         var stopwatch = new Stopwatch();

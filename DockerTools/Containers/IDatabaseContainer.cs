@@ -8,7 +8,7 @@ namespace Kenbi.DockerTools.Containers;
 /// Represents an instance of a DockerTools database container tracker.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IDatabaseContainer<T> : IContainer<T>, IDisposable where T : IDatabaseContainerTemplate
+public interface IDatabaseContainer<T> : IContainer<T> where T : class, IDatabaseContainerTemplate
 {
     /// <summary>
     /// The connection string to the database instance.

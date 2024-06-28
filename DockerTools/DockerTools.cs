@@ -12,15 +12,16 @@ namespace Kenbi.DockerTools;
 /// <summary>
 /// Entry point to creating a new container instance.
 /// </summary>
-public class DockerTools<T> where T : IContainerTemplate, new()
+public class DockerTools<T> where T : class, IContainerTemplate, new()
 {
+    private readonly Guid _instanceId = Guid.NewGuid();
+    
     private DockerClient? _client;
     private DockerToolsConnectionType _connectionType = new AutoDetectConnection();
     private bool _useValkyrie;
-    private readonly Guid _instanceId = Guid.NewGuid();
 
     private string? Id { get; set; }
-    private T Container { get; } = new();
+    private T ContainerTemplate { get; } = new();
 
     /// <summary>
     /// Allows for overriding default parameters.
@@ -32,7 +33,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
         var opts = new DockerToolsContainerOptions();
         options.Invoke(opts);
 
-        this.Container.ReplaceDefaultParameters(opts);
+        this.ContainerTemplate.ReplaceDefaultParameters(opts);
 
         return this;
     }
@@ -115,9 +116,9 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             this._client = await (this._connectionType as RemoteApiConnection)!.CreateClientAsync(token).ConfigureAwait(false);
         }
 
-        await Operations.PullImageOperations.PullImageAsync(this._client, this.Container.Image, this.Container.Tag, token).ConfigureAwait(false);
+        await Operations.PullImageOperations.PullImageAsync(this._client, this.ContainerTemplate.Image, this.ContainerTemplate.Tag, token).ConfigureAwait(false);
 
-        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.Container, this._instanceId, token).ConfigureAwait(false);
+        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.ContainerTemplate, this._instanceId, token).ConfigureAwait(false);
 
         if (this.Id == null)
         {
@@ -129,14 +130,14 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             throw new UnableToStartContainerException();
         }
 
-        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.Container, token).ConfigureAwait(false))
+        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.ContainerTemplate, token).ConfigureAwait(false))
         {
             throw new ContainerIsNotHealthyException();
         }
 
         var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
-        var result = await this.Container.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
+        var result = await this.ContainerTemplate.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
         if (!result.Success)
         {
@@ -148,7 +149,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             await StartValkyrieAsync(token).ConfigureAwait(false);
         }
 
-        return new Container<T>(this.Id, this._client, this.Container, ports.First().Host!);
+        return ContainerFactory.Create(this.Id, this._client, this.ContainerTemplate, ports.First().Host!);
     }
 
     private async Task StartValkyrieAsync(CancellationToken token)

@@ -8,7 +8,7 @@ namespace Kenbi.DockerTools.Containers;
 /// Represents an instance of a DockerTools container tracker.
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public interface IContainer<T> : IAsyncDisposable, IDisposable where T : IContainerTemplate
+public interface IContainer<T> : IAsyncDisposable, IDisposable where T : class, IContainerTemplate
 {
     internal DockerClient Client { get; }
     
