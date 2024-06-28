@@ -9,7 +9,7 @@ namespace Kenbi.DockerTools.Containers.Templates;
 /// <summary>
 /// Creates a new Postgis container.
 /// </summary>
-public sealed class Postgis : IContainerTemplate
+public sealed class Postgis : IDatabaseContainerTemplate
 {
     public string Image => "postgis/postgis";
     public string Tag { get; private set; } = "16-3.4";
@@ -88,11 +88,11 @@ public sealed class Postgis : IContainerTemplate
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
     }
     
-    async Task<string> CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
+    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
     {
         var command = $@"
 SELECT 'CREATE DATABASE ${name}'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = ${name})\\gexec
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = ${name})\\gexec;
 ";
 
         var iThis = (IContainerTemplate)this;

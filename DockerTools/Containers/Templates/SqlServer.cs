@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet;
+using Kenbi.DockerTools.Exceptions;
 using Kenbi.DockerTools.Models;
 using Kenbi.DockerTools.Operations;
 using Kenbi.DockerTools.Options.Container;
@@ -8,7 +9,7 @@ namespace Kenbi.DockerTools.Containers.Templates;
 /// <summary>
 /// Creates a new SQL Server container.
 /// </summary>
-public sealed class SqlServer : IContainerTemplate
+public sealed class SqlServer : IDatabaseContainerTemplate
 {
     public string Image => "mcr.microsoft.com/mssql/server";
     public string Tag { get; private set; } = "2022-latest";
@@ -73,12 +74,30 @@ public sealed class SqlServer : IContainerTemplate
     }
 
     string IContainerTemplate.GetConnectionString(string hostPort)
-        => $"Server=localhost,{hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};";
+        => GetConnectionString(hostPort, this.Database);
+    
+    private string GetConnectionString(string hostPort, string database)
+        => $"Server=localhost,{hostPort};Database={database};User Id={this.Username};Password={this.Password};";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {
         var command = $"/opt/mssql-tools/bin/sqlcmd -U {this.Username} -P {this.Password} -d {this.Database} -r 1 -Q";
         
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
+    }
+    
+    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
+    {
+        var command = $@"
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE [name] = N'${name}')
+    CREATE DATABASE ${name};
+";
+
+        var iThis = (IContainerTemplate)this;
+        var result = await iThis.RunScriptAsync(client, id, command, token);
+        if (!result.Success)
+            throw new UnableToSetupContainerException("Unable to create database");
+
+        return GetConnectionString(iThis.Ports.FirstOrDefault()?.Container, name);
     }
 }
