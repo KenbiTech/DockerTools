@@ -16,15 +16,11 @@ public sealed class Container<T> : IContainer<T> where T : IContainerTemplate, n
     /// <inheritdoc />
     public string Id { get; }
 
-    /// <inheritdoc />
-    public string ConnectionString { get; private set; }
-
     internal Container(string id, DockerClient client, T containerTemplate, string hostPort)
     {
         this.Id = id;
         _client = client;
         _containerTemplate = containerTemplate;
-        this.ConnectionString = containerTemplate.GetConnectionString(hostPort);
     }
 
     ~Container()
@@ -77,6 +73,5 @@ public sealed class Container<T> : IContainer<T> where T : IContainerTemplate, n
         await Task.Run(() => _client.Dispose(), token).ConfigureAwait(false);
 
         this._containerTemplate = default!;
-        this.ConnectionString = null!;
     }
 }

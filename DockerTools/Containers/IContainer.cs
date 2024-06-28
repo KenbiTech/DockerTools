@@ -16,11 +16,6 @@ public interface IContainer<T> : IAsyncDisposable, IDisposable where T : IContai
     /// The identifier of the container on Docker.
     /// </summary>
     public string Id { get; }
-    
-    /// <summary>
-    /// The connection string to the database instance.
-    /// </summary>
-    public string ConnectionString { get; }
 
     /// <summary>
     /// Run a script on the container's database.
