@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet;
+using Kenbi.DockerTools.Exceptions;
 using Kenbi.DockerTools.Models;
 using Kenbi.DockerTools.Operations;
 using Kenbi.DockerTools.Options.Container;
@@ -73,7 +74,10 @@ public sealed class Postgres : IContainerTemplate
     }
 
     string IContainerTemplate.GetConnectionString(string hostPort)
-        => $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};Command Timeout=0;";
+        => GetConnectionString(hostPort, this.Database);
+    
+    private string GetConnectionString(string hostPort, string database)
+        => $"Server=localhost;Port={hostPort};Database={database};User Id={this.Username};Password={this.Password};Command Timeout=0;";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {
@@ -82,5 +86,20 @@ public sealed class Postgres : IContainerTemplate
         script = "SET client_min_messages TO WARNING; " + script;
 
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
+    }
+
+    async Task<string> CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
+    {
+        var command = $@"
+SELECT 'CREATE DATABASE ${name}'
+WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = ${name})\\gexec
+";
+
+        var iThis = (IContainerTemplate)this;
+        var result = await iThis.RunScriptAsync(client, id, command, token);
+        if (!result.Success)
+            throw new UnableToSetupContainerException("Unable to create database");
+
+        return GetConnectionString(iThis.Ports.FirstOrDefault()?.Container, name);
     }
 }
