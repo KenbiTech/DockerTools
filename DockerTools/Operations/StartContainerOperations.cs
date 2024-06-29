@@ -26,7 +26,7 @@ internal static class StartContainerOperations
         var overallTimeout = ((container.HealthCheck?.Timeout + container.HealthCheck?.Interval) * container.HealthCheck?.Retries) ?? DefaultOverallTimeout;
         var healthCounter = 0;
         
-        Thread.Sleep(startPeriod);
+        await Task.Delay(startPeriod, token);
 
         var stopWatch = new Stopwatch();
         stopWatch.Start();
@@ -53,7 +53,7 @@ internal static class StartContainerOperations
                 case ConsecutiveHealthyResults * -1:
                     return false;
                 default:
-                    Thread.Sleep(attemptTimeout);
+                    await Task.Delay(attemptTimeout);
                     break;
             }
         }
