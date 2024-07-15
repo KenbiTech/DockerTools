@@ -95,7 +95,7 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
 
             if (this.Id == null)
             {
-                await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
+                _client.Dispose();
                 throw;
             }
 
@@ -134,8 +134,6 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
         {
             throw new ContainerIsNotHealthyException();
         }
-
-        var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
         var result = await this.ContainerTemplate.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
@@ -185,6 +183,6 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
             },
             token).ConfigureAwait(false);
 
-        await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
+        this._client.Dispose();
     }
 }

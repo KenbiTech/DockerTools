@@ -16,7 +16,7 @@ public sealed class Container<T> : IContainer where T : class, IContainerTemplat
     /// <inheritdoc />
     public string Id { get; }
 
-    internal Container(string id, DockerClient client, T containerTemplate, string hostPort)
+    internal Container(string id, DockerClient client, T containerTemplate)
     {
         this.Id = id;
         _client = client;
@@ -70,7 +70,7 @@ public sealed class Container<T> : IContainer where T : class, IContainerTemplat
                 token)
             .ConfigureAwait(false);
 
-        await Task.Run(() => _client.Dispose(), token).ConfigureAwait(false);
+        _client.Dispose();
 
         this._containerTemplate = default!;
     }

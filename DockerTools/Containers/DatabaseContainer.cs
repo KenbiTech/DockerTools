@@ -79,7 +79,7 @@ public sealed class DatabaseContainer : IDatabaseContainer
                 token)
             .ConfigureAwait(false);
 
-        await Task.Run(() => _client.Dispose(), token).ConfigureAwait(false);
+        _client.Dispose();
 
         this._containerTemplate = default!;
         this.ConnectionString = null!;
