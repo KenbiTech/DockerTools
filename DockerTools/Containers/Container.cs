@@ -6,12 +6,12 @@ using Kenbi.DockerTools.Models;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public sealed class Container<T> : IContainer<T> where T : class, IContainerTemplate
+public sealed class Container<T> : IContainer where T : class, IContainerTemplate
 {
     private T _containerTemplate;
     private readonly DockerClient _client;
 
-    DockerClient IContainer<T>.Client => _client;
+    DockerClient IContainer.Client => _client;
 
     /// <inheritdoc />
     public string Id { get; }

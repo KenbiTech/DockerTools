@@ -6,12 +6,12 @@ using Kenbi.DockerTools.Models;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public sealed class DatabaseContainer<T> : IDatabaseContainer<T> where T : class, IDatabaseContainerTemplate
+public sealed class DatabaseContainer : IDatabaseContainer
 {
-    private T _containerTemplate;
+    private IDatabaseContainerTemplate _containerTemplate;
     private readonly DockerClient _client;
 
-    DockerClient IContainer<T>.Client => _client;
+    DockerClient IContainer.Client => _client;
 
     /// <inheritdoc />
     public string Id { get; }
@@ -19,7 +19,7 @@ public sealed class DatabaseContainer<T> : IDatabaseContainer<T> where T : class
     /// <inheritdoc />
     public string ConnectionString { get; private set; }
 
-    internal DatabaseContainer(string id, DockerClient client, T containerTemplate, string hostPort)
+    internal DatabaseContainer(string id, DockerClient client, IDatabaseContainerTemplate containerTemplate, string hostPort)
     {
         this.Id = id;
         _client = client;

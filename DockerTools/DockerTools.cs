@@ -74,16 +74,16 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
     /// Creates a container instance representing the remote container.
     /// </summary>
     /// <param name="token">A cancellation token. Optional.</param>
-    /// <returns>An instance of <see cref="IContainer{T}"/>.</returns>
+    /// <returns>An instance of <see cref="IContainer"/>.</returns>
     /// <exception cref="DockerUnreachableException">Docker is not available on the requested URI, or DockerTools is unable to properly detect which connection to use.</exception>
     /// <exception cref="UnableToPullImageException">Invalid image:tag provided, repository not accessible, or network problem.</exception>
     /// <exception cref="UnableToCreateContainerException">Container could not be created on Docker host.</exception>
     /// <exception cref="UnableToStartContainerException">Container could not be started on Docker host.</exception>
     /// <exception cref="ContainerIsNotHealthyException">Container has exceeded the allotted time given to start up correctly.</exception>
-    public async Task<IContainer<T>> CreateAsync(CancellationToken token = default)
+    public async Task<IContainer> CreateAsync(CancellationToken token = default)
     {
         try
-        {
+        { 
             return await InternalCreateAsync(token).ConfigureAwait(false);
         }
         catch
@@ -105,7 +105,7 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
         }
     }
 
-    private async Task<IContainer<T>> InternalCreateAsync(CancellationToken token)
+    private async Task InternalCreateAsync(CancellationToken token)
     {
         if (this._connectionType is AutoDetectConnection connection)
         {
