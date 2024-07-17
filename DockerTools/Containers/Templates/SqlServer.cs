@@ -29,15 +29,13 @@ public sealed class SqlServer : IDatabaseContainerTemplate
     IList<string> IContainerTemplate.EnvironmentVariables => new List<string>
     {
         "ACCEPT_EULA=true",
-        $"MSSQL_SA_PASSWORD={this.Password}",
-        $"DB_USER={this.Username}",
-        $"SA_PASSWORD={this.Password}"
+        $"MSSQL_SA_PASSWORD={this.Password}"
         
     };
     HealthCheck IContainerTemplate.HealthCheck => new()
     {
-        Command = "/opt/mssql-tools/bin/sqlcmd -U $DB_USER -P $SA_PASSWORD -Q 'select 1' -b -o /dev/null",
         Interval = new TimeSpan(0, 0, 2),
+        Command = $"/opt/mssql-tools/bin/sqlcmd -S localhost -U {Username} -P $MSSQL_SA_PASSWORD -Q 'select 1' -b",
         Timeout = new TimeSpan(0, 0, 2),
         Retries = 5
     };
@@ -77,7 +75,7 @@ public sealed class SqlServer : IDatabaseContainerTemplate
         => GetConnectionString(hostPort, this.Database);
     
     private string GetConnectionString(string hostPort, string database)
-        => $"Server=localhost,{hostPort};Database={database};User Id={this.Username};Password={this.Password};";
+        => $"Server=127.0.0.1,{hostPort};Database={database};User Id={this.Username};Password={this.Password};TrustServerCertificate=True;";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {
@@ -86,11 +84,11 @@ public sealed class SqlServer : IDatabaseContainerTemplate
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
     }
     
-    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
+    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, string hostPort, CancellationToken token)
     {
         var command = $@"
-IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE [name] = N'${name}')
-    CREATE DATABASE ${name};
+IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE [name] = N'{name}')
+    CREATE DATABASE {name};
 ";
 
         var iThis = (IContainerTemplate)this;
@@ -98,6 +96,6 @@ IF NOT EXISTS (SELECT 1 FROM sys.databases WHERE [name] = N'${name}')
         if (!result.Success)
             throw new UnableToSetupContainerException("Unable to create database");
 
-        return GetConnectionString(iThis.Ports.FirstOrDefault()?.Container, name);
+        return GetConnectionString(hostPort, name);
     }
 }

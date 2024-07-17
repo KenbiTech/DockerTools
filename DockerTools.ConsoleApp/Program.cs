@@ -1,10 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using System.Data.Common;
 using System.Diagnostics;
 using Kenbi.DockerTools;
 using Kenbi.DockerTools.Containers;
 using Kenbi.DockerTools.Containers.Templates;
-using Microsoft.Data.SqlClient;
 
 namespace DockerTools.ConsoleApp;
 
@@ -32,12 +32,12 @@ public static class Program
         var stopwatch = new Stopwatch();
         stopwatch.Start();
 
-        IContainer<T>? container;
+        IContainer? container;
         try
         {
             container = await new DockerTools<T>()
                 //.WithCleanUp(true)
-                .CreateAsync();
+                .CreateDatabaseAsync();
         }
         catch (Exception ex)
         {
@@ -71,22 +71,22 @@ public static class Program
 
         try
         {
-            var dbContainer = container as IDatabaseContainer<T>;
+            var dbContainer = container as IDatabaseContainer;
             if (dbContainer is null)
             {
                 Console.WriteLine($"Container {instance} does not represent a database container type");
                 return;
             }
 
-            var databaseName = "test";
-            var connectionString = await dbContainer.CreateDatabaseAsync(databaseName);
+            var connectionString = await dbContainer.CreateDatabaseAsync("test");
             
-            using (SqlConnection connection = new SqlConnection(connectionString))
+            using (var connection = dbContainer.Connect(connectionString))
             {
                 await connection.OpenAsync();
 
-                ListDatabases(connection);
-                CreateTable(connection, databaseName);
+                Console.WriteLine($"Databases for instance {instance}:");
+                ListDatabases(dbContainer, connection);
+                CreateTable(dbContainer, connection);
             }
         }
         catch (Exception e)
@@ -99,29 +99,31 @@ public static class Program
         Console.WriteLine($"Instance {instance} has been removed");
     }
 
-    private static void ListDatabases(SqlConnection connection)
+    private static void ListDatabases(IDatabaseContainer container, DbConnection connection)
     {
-        string sql = "SELECT name, collation_name FROM sys.databases";
+        string sql = container.GetListDatabasesQuery();
 
-        using (SqlCommand command = new SqlCommand(sql, connection))
+        using (var command = container.CreateCommand(connection, sql))
         {
-            using (SqlDataReader reader = command.ExecuteReader())
+            using (var reader = command.ExecuteReader())
             {
                 while (reader.Read())
                 {
-                    Console.WriteLine("{0} {1}", reader.GetString(0), reader.GetString(1));
+                    Console.WriteLine("{0}", reader.GetString(0));
                 }
             }
         }
     }
     
-    private static void CreateTable(SqlConnection connection, string databaseName)
+    private static void CreateTable(IDatabaseContainer container, DbConnection connection)
     {
-        string sql = $"USE {databaseName}; CREATE TABLE test (id INT);";
+        string sql = "CREATE TABLE test (id INT);";
 
-        using (SqlCommand command = new SqlCommand(sql, connection))
+        using (var command = container.CreateCommand(connection, sql))
         {
             command.ExecuteNonQuery();
+            
+            Console.WriteLine("Created table with success");
         }
     }
 }

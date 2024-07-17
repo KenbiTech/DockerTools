@@ -23,4 +23,6 @@ public interface IContainer : IAsyncDisposable, IDisposable
     /// <param name="token">A cancellation token. Optional.</param>
     /// <returns>True if script ran successfully; false otherwise.</returns>
     public Task<ScriptExecutionResult> RunScriptAsync(string script, CancellationToken token = default);
+    
+    public Type GetTemplateType();
 }

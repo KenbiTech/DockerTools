@@ -9,5 +9,5 @@ namespace Kenbi.DockerTools.Containers.Templates;
 /// </summary>
 public interface IDatabaseContainerTemplate : IContainerTemplate
 {
-    internal Task<string> CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token);
+    internal Task<string> CreateDatabaseAsync(DockerClient client, string id, string name, string hostPort, CancellationToken token);
 }

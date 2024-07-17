@@ -71,6 +71,47 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
     }
 
     /// <summary>
+    /// Creates a container instance representing the remote database container.
+    /// </summary>
+    /// <param name="token">A cancellation token. Optional.</param>
+    /// <returns>An instance of <see cref="IDatabaseContainer"/>.</returns>
+    /// <exception cref="DockerUnreachableException">Docker is not available on the requested URI, or DockerTools is unable to properly detect which connection to use.</exception>
+    /// <exception cref="UnableToPullImageException">Invalid image:tag provided, repository not accessible, or network problem.</exception>
+    /// <exception cref="UnableToCreateContainerException">Container could not be created on Docker host.</exception>
+    /// <exception cref="UnableToStartContainerException">Container could not be started on Docker host.</exception>
+    /// <exception cref="ContainerIsNotHealthyException">Container has exceeded the allotted time given to start up correctly.</exception>
+    public async Task<IDatabaseContainer> CreateDatabaseAsync(CancellationToken token = default)
+    {
+        if (ContainerTemplate is not IDatabaseContainerTemplate)
+            throw new UnableToCreateContainerException();
+        
+        try
+        { 
+            await InternalCreateAsync(token).ConfigureAwait(false);
+            
+            var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
+            return new DatabaseContainer(Id, _client, (IDatabaseContainerTemplate) ContainerTemplate, ports.First().Host!);
+        }
+        catch
+        {
+            if (this._client == null)
+            {
+                throw;
+            }
+
+            if (this.Id == null)
+            {
+                this._client.Dispose();
+                throw;
+            }
+
+            await PerformCleanupAsync(token).ConfigureAwait(false);
+
+            throw;
+        }
+    }
+    
+    /// <summary>
     /// Creates a container instance representing the remote container.
     /// </summary>
     /// <param name="token">A cancellation token. Optional.</param>
@@ -84,7 +125,9 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
     {
         try
         { 
-            return await InternalCreateAsync(token).ConfigureAwait(false);
+            await InternalCreateAsync(token).ConfigureAwait(false);
+            
+            return new Container<T>(Id, _client, ContainerTemplate);
         }
         catch
         {
@@ -146,8 +189,6 @@ public class DockerTools<T> where T : class, IContainerTemplate, new()
         {
             await StartValkyrieAsync(token).ConfigureAwait(false);
         }
-
-        return ContainerFactory.Create(this.Id, this._client, this.ContainerTemplate, ports.First().Host!);
     }
 
     private async Task StartValkyrieAsync(CancellationToken token)

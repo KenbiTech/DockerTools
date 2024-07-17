@@ -30,6 +30,11 @@ public sealed class Container<T> : IContainer where T : class, IContainerTemplat
             .GetAwaiter()
             .GetResult();
     }
+    
+    public Type GetTemplateType()
+    {
+        return typeof(T);
+    }
 
     /// <inheritdoc />
     public Task<ScriptExecutionResult> RunScriptAsync(string script, CancellationToken token = default)

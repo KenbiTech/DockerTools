@@ -77,7 +77,7 @@ public sealed class Postgres : IDatabaseContainerTemplate
         => GetConnectionString(hostPort, this.Database);
     
     private string GetConnectionString(string hostPort, string database)
-        => $"Server=localhost;Port={hostPort};Database={database};User Id={this.Username};Password={this.Password};Command Timeout=0;";
+        => $"Server=localhost;Port={hostPort};Database={database};User Id={this.Username};Password={this.Password};";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {
@@ -88,18 +88,16 @@ public sealed class Postgres : IDatabaseContainerTemplate
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
     }
 
-    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, CancellationToken token)
+    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, string hostPort, CancellationToken token)
     {
-        var command = $@"
-SELECT 'CREATE DATABASE ${name}'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = ${name})\\gexec;
-";
+        var script = $"psql -U {this.Username} -d {this.Database} -q -c 'SET client_min_messages TO WARNING' -c 'DROP DATABASE IF EXISTS {name}' -c 'CREATE DATABASE {name} WITH OWNER = {this.Username};'";
 
-        var iThis = (IContainerTemplate)this;
-        var result = await iThis.RunScriptAsync(client, id, command, token);
+        var command = "bash -c";
+
+        var result = await CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
         if (!result.Success)
             throw new UnableToSetupContainerException("Unable to create database");
 
-        return GetConnectionString(iThis.Ports.FirstOrDefault()?.Container, name);
+        return GetConnectionString(hostPort, name);
     }
 }

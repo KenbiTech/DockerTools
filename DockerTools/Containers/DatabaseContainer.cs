@@ -10,6 +10,7 @@ public sealed class DatabaseContainer : IDatabaseContainer
 {
     private IDatabaseContainerTemplate _containerTemplate;
     private readonly DockerClient _client;
+    private readonly string _hostPort;
 
     DockerClient IContainer.Client => _client;
 
@@ -23,6 +24,7 @@ public sealed class DatabaseContainer : IDatabaseContainer
     {
         this.Id = id;
         _client = client;
+        _hostPort = hostPort;
         _containerTemplate = containerTemplate;
         this.ConnectionString = containerTemplate.GetConnectionString(hostPort);
     }
@@ -34,6 +36,11 @@ public sealed class DatabaseContainer : IDatabaseContainer
             .GetAwaiter()
             .GetResult();
     }
+    
+    public Type GetTemplateType()
+    {
+        return _containerTemplate.GetType();
+    }
 
     /// <inheritdoc />
     public Task<ScriptExecutionResult> RunScriptAsync(string script, CancellationToken token = default)
@@ -43,7 +50,7 @@ public sealed class DatabaseContainer : IDatabaseContainer
     
     public async Task<string> CreateDatabaseAsync(string name, CancellationToken token)
     {
-        return await _containerTemplate.CreateDatabaseAsync(_client, this.Id, name, token);
+        return await _containerTemplate.CreateDatabaseAsync(_client, this.Id, name, _hostPort, token);
     }
 
     /// <inheritdoc />
