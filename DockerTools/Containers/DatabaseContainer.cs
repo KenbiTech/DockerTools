@@ -6,24 +6,30 @@ using Kenbi.DockerTools.Models;
 namespace Kenbi.DockerTools.Containers;
 
 /// <inheritdoc />
-public sealed class Container<T> : IContainer where T : class, IContainerTemplate
+public sealed class DatabaseContainer : IDatabaseContainer
 {
-    private T _containerTemplate;
+    private IDatabaseContainerTemplate _containerTemplate;
     private readonly DockerClient _client;
+    private readonly string _hostPort;
 
     DockerClient IContainer.Client => _client;
 
     /// <inheritdoc />
     public string Id { get; }
 
-    internal Container(string id, DockerClient client, T containerTemplate)
+    /// <inheritdoc />
+    public string ConnectionString { get; private set; }
+
+    internal DatabaseContainer(string id, DockerClient client, IDatabaseContainerTemplate containerTemplate, string hostPort)
     {
         this.Id = id;
         _client = client;
+        _hostPort = hostPort;
         _containerTemplate = containerTemplate;
+        this.ConnectionString = containerTemplate.GetConnectionString(hostPort);
     }
 
-    ~Container()
+    ~DatabaseContainer()
     {
         InternalDisposeAsync()
             .ConfigureAwait(false)
@@ -33,13 +39,18 @@ public sealed class Container<T> : IContainer where T : class, IContainerTemplat
     
     public Type GetTemplateType()
     {
-        return typeof(T);
+        return _containerTemplate.GetType();
     }
 
     /// <inheritdoc />
     public Task<ScriptExecutionResult> RunScriptAsync(string script, CancellationToken token = default)
     {
         return _containerTemplate.RunScriptAsync(_client, this.Id, script, token);
+    }
+    
+    public async Task<string> CreateDatabaseAsync(string name, CancellationToken token)
+    {
+        return await _containerTemplate.CreateDatabaseAsync(_client, this.Id, name, _hostPort, token);
     }
 
     /// <inheritdoc />
@@ -78,5 +89,6 @@ public sealed class Container<T> : IContainer where T : class, IContainerTemplat
         _client.Dispose();
 
         this._containerTemplate = default!;
+        this.ConnectionString = null!;
     }
 }

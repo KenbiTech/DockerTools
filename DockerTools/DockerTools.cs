@@ -12,15 +12,16 @@ namespace Kenbi.DockerTools;
 /// <summary>
 /// Entry point to creating a new container instance.
 /// </summary>
-public class DockerTools<T> where T : IContainerTemplate, new()
+public class DockerTools<T> where T : class, IContainerTemplate, new()
 {
+    private readonly Guid _instanceId = Guid.NewGuid();
+    
     private DockerClient? _client;
     private DockerToolsConnectionType _connectionType = new AutoDetectConnection();
     private bool _useValkyrie;
-    private readonly Guid _instanceId = Guid.NewGuid();
 
     private string? Id { get; set; }
-    private T Container { get; } = new();
+    private T ContainerTemplate { get; } = new();
 
     /// <summary>
     /// Allows for overriding default parameters.
@@ -32,7 +33,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
         var opts = new DockerToolsContainerOptions();
         options.Invoke(opts);
 
-        this.Container.ReplaceDefaultParameters(opts);
+        this.ContainerTemplate.ReplaceDefaultParameters(opts);
 
         return this;
     }
@@ -70,20 +71,26 @@ public class DockerTools<T> where T : IContainerTemplate, new()
     }
 
     /// <summary>
-    /// Creates a container instance representing the remote container.
+    /// Creates a container instance representing the remote database container.
     /// </summary>
     /// <param name="token">A cancellation token. Optional.</param>
-    /// <returns>An instance of <see cref="IContainer{T}"/>.</returns>
+    /// <returns>An instance of <see cref="IDatabaseContainer"/>.</returns>
     /// <exception cref="DockerUnreachableException">Docker is not available on the requested URI, or DockerTools is unable to properly detect which connection to use.</exception>
     /// <exception cref="UnableToPullImageException">Invalid image:tag provided, repository not accessible, or network problem.</exception>
     /// <exception cref="UnableToCreateContainerException">Container could not be created on Docker host.</exception>
     /// <exception cref="UnableToStartContainerException">Container could not be started on Docker host.</exception>
     /// <exception cref="ContainerIsNotHealthyException">Container has exceeded the allotted time given to start up correctly.</exception>
-    public async Task<IContainer<T>> CreateAsync(CancellationToken token = default)
+    public async Task<IDatabaseContainer> CreateDatabaseAsync(CancellationToken token = default)
     {
+        if (ContainerTemplate is not IDatabaseContainerTemplate)
+            throw new UnableToCreateContainerException();
+        
         try
-        {
-            return await InternalCreateAsync(token).ConfigureAwait(false);
+        { 
+            await InternalCreateAsync(token).ConfigureAwait(false);
+            
+            var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
+            return new DatabaseContainer(Id, _client, (IDatabaseContainerTemplate) ContainerTemplate, ports.First().Host!);
         }
         catch
         {
@@ -94,7 +101,44 @@ public class DockerTools<T> where T : IContainerTemplate, new()
 
             if (this.Id == null)
             {
-                await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
+                this._client.Dispose();
+                throw;
+            }
+
+            await PerformCleanupAsync(token).ConfigureAwait(false);
+
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// Creates a container instance representing the remote container.
+    /// </summary>
+    /// <param name="token">A cancellation token. Optional.</param>
+    /// <returns>An instance of <see cref="IContainer"/>.</returns>
+    /// <exception cref="DockerUnreachableException">Docker is not available on the requested URI, or DockerTools is unable to properly detect which connection to use.</exception>
+    /// <exception cref="UnableToPullImageException">Invalid image:tag provided, repository not accessible, or network problem.</exception>
+    /// <exception cref="UnableToCreateContainerException">Container could not be created on Docker host.</exception>
+    /// <exception cref="UnableToStartContainerException">Container could not be started on Docker host.</exception>
+    /// <exception cref="ContainerIsNotHealthyException">Container has exceeded the allotted time given to start up correctly.</exception>
+    public async Task<IContainer> CreateAsync(CancellationToken token = default)
+    {
+        try
+        { 
+            await InternalCreateAsync(token).ConfigureAwait(false);
+            
+            return new Container<T>(Id, _client, ContainerTemplate);
+        }
+        catch
+        {
+            if (this._client == null)
+            {
+                throw;
+            }
+
+            if (this.Id == null)
+            {
+                _client.Dispose();
                 throw;
             }
 
@@ -104,7 +148,7 @@ public class DockerTools<T> where T : IContainerTemplate, new()
         }
     }
 
-    private async Task<IContainer<T>> InternalCreateAsync(CancellationToken token)
+    private async Task InternalCreateAsync(CancellationToken token)
     {
         if (this._connectionType is AutoDetectConnection connection)
         {
@@ -115,9 +159,9 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             this._client = await (this._connectionType as RemoteApiConnection)!.CreateClientAsync(token).ConfigureAwait(false);
         }
 
-        await Operations.PullImageOperations.PullImageAsync(this._client, this.Container.Image, this.Container.Tag, token).ConfigureAwait(false);
+        await Operations.PullImageOperations.PullImageAsync(this._client, this.ContainerTemplate.Image, this.ContainerTemplate.Tag, token).ConfigureAwait(false);
 
-        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.Container, this._instanceId, token).ConfigureAwait(false);
+        this.Id = await Operations.CreateContainerOperations.CreateContainerAsync(this._client, this.ContainerTemplate, this._instanceId, token).ConfigureAwait(false);
 
         if (this.Id == null)
         {
@@ -129,14 +173,12 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             throw new UnableToStartContainerException();
         }
 
-        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.Container, token).ConfigureAwait(false))
+        if (!await Operations.StartContainerOperations.IsContainerHealthy(this._client, this.Id, this.ContainerTemplate, token).ConfigureAwait(false))
         {
             throw new ContainerIsNotHealthyException();
         }
 
-        var ports = await Operations.StartContainerOperations.GetRunningPortsAsync(this._client, this.Id, token).ConfigureAwait(false);
-
-        var result = await this.Container.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
+        var result = await this.ContainerTemplate.PerformPostStartOperationsAsync(this._client, this.Id, token).ConfigureAwait(false);
 
         if (!result.Success)
         {
@@ -147,8 +189,6 @@ public class DockerTools<T> where T : IContainerTemplate, new()
         {
             await StartValkyrieAsync(token).ConfigureAwait(false);
         }
-
-        return new Container<T>(this.Id, this._client, this.Container, ports.First().Host!);
     }
 
     private async Task StartValkyrieAsync(CancellationToken token)
@@ -184,6 +224,6 @@ public class DockerTools<T> where T : IContainerTemplate, new()
             },
             token).ConfigureAwait(false);
 
-        await Task.Run(() => this._client.Dispose(), token).ConfigureAwait(false);
+        this._client.Dispose();
     }
 }

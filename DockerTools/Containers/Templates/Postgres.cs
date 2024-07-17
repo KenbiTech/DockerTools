@@ -1,4 +1,5 @@
 ﻿using Docker.DotNet;
+using Kenbi.DockerTools.Exceptions;
 using Kenbi.DockerTools.Models;
 using Kenbi.DockerTools.Operations;
 using Kenbi.DockerTools.Options.Container;
@@ -8,7 +9,7 @@ namespace Kenbi.DockerTools.Containers.Templates;
 /// <summary>
 /// Creates a new Postgres container.
 /// </summary>
-public sealed class Postgres : IContainerTemplate
+public sealed class Postgres : IDatabaseContainerTemplate
 {
     public string Image => "postgres";
     public string Tag { get; private set; } = "16";
@@ -73,7 +74,10 @@ public sealed class Postgres : IContainerTemplate
     }
 
     string IContainerTemplate.GetConnectionString(string hostPort)
-        => $"Server=localhost;Port={hostPort};Database={this.Database};User Id={this.Username};Password={this.Password};Command Timeout=0;";
+        => GetConnectionString(hostPort, this.Database);
+    
+    private string GetConnectionString(string hostPort, string database)
+        => $"Server=localhost;Port={hostPort};Database={database};User Id={this.Username};Password={this.Password};";
 
     Task<ScriptExecutionResult> IContainerTemplate.RunScriptAsync(DockerClient client, string id, string script, CancellationToken token)
     {
@@ -82,5 +86,18 @@ public sealed class Postgres : IContainerTemplate
         script = "SET client_min_messages TO WARNING; " + script;
 
         return CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
+    }
+
+    async Task<string> IDatabaseContainerTemplate.CreateDatabaseAsync(DockerClient client, string id, string name, string hostPort, CancellationToken token)
+    {
+        var script = $"psql -U {this.Username} -d {this.Database} -q -c 'SET client_min_messages TO WARNING' -c 'DROP DATABASE IF EXISTS {name}' -c 'CREATE DATABASE {name} WITH OWNER = {this.Username};'";
+
+        var command = "bash -c";
+
+        var result = await CommandExecutionOperations.RunScriptAsync(client, id, command, script, token);
+        if (!result.Success)
+            throw new UnableToSetupContainerException("Unable to create database");
+
+        return GetConnectionString(hostPort, name);
     }
 }
